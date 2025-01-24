@@ -1,0 +1,17 @@
+{
+    "tools": [
+        {
+            "name": "Resize",
+            "params": {
+                "width": 100,
+                "height": 100
+            }
+        },
+        {
+            "name": "Filter",
+            "params": {
+                "kernel_size": 5
+            }
+        }
+    ]
+}
