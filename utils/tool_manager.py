@@ -2,6 +2,8 @@ from tools.resize import ResizeTool
 from tools.filter import FilterTool
 from tools.rotate import RotateTool
 from tools.brightness import BrightnessTool
+from tools.contrast import ContrastTool
+from tools.sharpen import SharpenTool
 
 
 class ToolManager:
@@ -11,6 +13,8 @@ class ToolManager:
             "Filter": FilterTool(),
             "Rotate": RotateTool(),
             "Brightness": BrightnessTool(),
+            "Contrast": ContrastTool(),
+            "Sharpen": SharpenTool(),
         }
 
     def get_available_tools(self):
