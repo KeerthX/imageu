@@ -2,6 +2,7 @@ from tools.resize import ResizeTool
 from tools.filter import FilterTool
 from tools.rotate import RotateTool
 
+
 class ToolManager:
     def __init__(self):
         self.tools = {

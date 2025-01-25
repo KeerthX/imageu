@@ -1,8 +1,33 @@
 from PyQt5.QtWidgets import (
-    QMainWindow, QVBoxLayout, QWidget, QLabel, QPushButton, QListWidget, QFileDialog, QHBoxLayout, QInputDialog
+    QMainWindow, QVBoxLayout, QWidget, QPushButton, QListWidget, QFileDialog, QHBoxLayout, QDialog, QVBoxLayout, QComboBox
 )
 from gui.image_viewer import ImageViewer
+from gui.dialogs import ConfigDialog
 from utils.tool_manager import ToolManager
+
+
+class AddProcessDialog(QDialog):
+    def __init__(self, processes):
+        super().__init__()
+        self.setWindowTitle("Select Processing")
+        self.selected_process = None
+
+        layout = QVBoxLayout(self)
+
+        # Dropdown menu for selecting processes
+        self.combo_box = QComboBox()
+        self.combo_box.addItems(processes)
+        layout.addWidget(self.combo_box)
+
+        # OK button
+        ok_button = QPushButton("OK")
+        ok_button.clicked.connect(self.confirm_selection)
+        layout.addWidget(ok_button)
+
+    def confirm_selection(self):
+        self.selected_process = self.combo_box.currentText()
+        self.accept()
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -11,7 +36,6 @@ class MainWindow(QMainWindow):
         self.setGeometry(200, 100, 1000, 600)
 
         # Initialize variables
-        self.current_image = None
         self.tool_manager = ToolManager()
 
         # Main layout
@@ -51,7 +75,6 @@ class MainWindow(QMainWindow):
     def upload_image(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Open Image", "", "Images (*.png *.jpg *.jpeg *.bmp)")
         if file_path:
-            self.current_image = file_path
             self.image_viewer.set_image(file_path)
 
     def save_image(self):
@@ -62,14 +85,17 @@ class MainWindow(QMainWindow):
             self.image_viewer.save_image(file_path)
 
     def add_processing(self):
-        processes = self.tool_manager.get_available_tools()
-        process, ok = QInputDialog.getItem(self, "Select Processing", "Choose a processing:", processes, 0, False)
-        if ok and process:
-            self.process_list.addItem(process)
-            self.image_viewer.add_processing(self.tool_manager.get_tool(process))
+        dialog = AddProcessDialog(self.tool_manager.get_available_tools())
+        if dialog.exec_():  # Dialog accepted
+            process = dialog.selected_process
+            if process:
+                tool = self.tool_manager.get_tool(process)
+                self.process_list.addItem(process)
+                self.image_viewer.add_processing(tool)
 
     def edit_process(self, item):
         process_name = item.text()
         process_tool = self.tool_manager.get_tool(process_name)
-        process_tool.configure()
-        self.image_viewer.update_image()
+        dialog = ConfigDialog(process_tool)
+        if dialog.exec_():
+            self.image_viewer.apply_processing()

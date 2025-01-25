@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
 from PyQt5.QtGui import QPixmap, QImage
 import cv2
 
+
 class ImageViewer(QGraphicsView):
     def __init__(self):
         super().__init__()
