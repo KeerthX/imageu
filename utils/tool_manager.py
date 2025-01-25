@@ -1,6 +1,7 @@
 from tools.resize import ResizeTool
 from tools.filter import FilterTool
 from tools.rotate import RotateTool
+from tools.brightness import BrightnessTool
 
 
 class ToolManager:
@@ -8,7 +9,8 @@ class ToolManager:
         self.tools = {
             "Resize": ResizeTool(),
             "Filter": FilterTool(),
-            "Rotate": RotateTool()
+            "Rotate": RotateTool(),
+            "Brightness": BrightnessTool(),
         }
 
     def get_available_tools(self):
