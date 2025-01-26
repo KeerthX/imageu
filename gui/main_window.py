@@ -1,32 +1,9 @@
 from PyQt5.QtWidgets import (
-    QMainWindow, QVBoxLayout, QWidget, QPushButton, QListWidget, QFileDialog, QHBoxLayout, QDialog, QVBoxLayout, QComboBox
+    QMainWindow, QVBoxLayout, QWidget, QPushButton, QListWidget, QFileDialog, QHBoxLayout
 )
 from gui.image_viewer import ImageViewer
-from gui.dialogs import ConfigDialog
+from gui.dialogs import ConfigDialog, AddProcessDialog
 from utils.tool_manager import ToolManager
-
-
-class AddProcessDialog(QDialog):
-    def __init__(self, processes):
-        super().__init__()
-        self.setWindowTitle("Select Processing")
-        self.selected_process = None
-
-        layout = QVBoxLayout(self)
-
-        # Dropdown menu for selecting processes
-        self.combo_box = QComboBox()
-        self.combo_box.addItems(processes)
-        layout.addWidget(self.combo_box)
-
-        # OK button
-        ok_button = QPushButton("OK")
-        ok_button.clicked.connect(self.confirm_selection)
-        layout.addWidget(ok_button)
-
-    def confirm_selection(self):
-        self.selected_process = self.combo_box.currentText()
-        self.accept()
 
 
 class MainWindow(QMainWindow):
@@ -70,6 +47,20 @@ class MainWindow(QMainWindow):
         self.add_process_button.clicked.connect(self.add_processing)
         controls_layout.addWidget(self.add_process_button)
 
+        # Move Up and Move Down buttons
+        self.move_up_button = QPushButton("Move Up")
+        self.move_up_button.clicked.connect(self.move_up)
+        controls_layout.addWidget(self.move_up_button)
+
+        self.move_down_button = QPushButton("Move Down")
+        self.move_down_button.clicked.connect(self.move_down)
+        controls_layout.addWidget(self.move_down_button)
+
+        # Remove button
+        self.remove_button = QPushButton("Remove")
+        self.remove_button.clicked.connect(self.remove_processing)
+        controls_layout.addWidget(self.remove_button)
+
         self.layout.addLayout(controls_layout)
 
     def upload_image(self):
@@ -95,7 +86,36 @@ class MainWindow(QMainWindow):
 
     def edit_process(self, item):
         process_name = item.text()
-        process_tool = self.tool_manager.get_tool(process_name)
+        tool_index = self.process_list.row(item)
+        process_tool = self.image_viewer.processing_stack[tool_index]
+
         dialog = ConfigDialog(process_tool)
         if dialog.exec_():
+            self.image_viewer.apply_processing()
+
+    def move_up(self):
+        current_row = self.process_list.currentRow()
+        if current_row > 0:
+            self.process_list.insertItem(current_row - 1, self.process_list.takeItem(current_row))
+            self.image_viewer.processing_stack.insert(
+                current_row - 1, self.image_viewer.processing_stack.pop(current_row)
+            )
+            self.process_list.setCurrentRow(current_row - 1)
+            self.image_viewer.apply_processing()
+
+    def move_down(self):
+        current_row = self.process_list.currentRow()
+        if current_row < self.process_list.count() - 1:
+            self.process_list.insertItem(current_row + 1, self.process_list.takeItem(current_row))
+            self.image_viewer.processing_stack.insert(
+                current_row + 1, self.image_viewer.processing_stack.pop(current_row)
+            )
+            self.process_list.setCurrentRow(current_row + 1)
+            self.image_viewer.apply_processing()
+
+    def remove_processing(self):
+        current_row = self.process_list.currentRow()
+        if current_row != -1:
+            self.process_list.takeItem(current_row)
+            del self.image_viewer.processing_stack[current_row]
             self.image_viewer.apply_processing()

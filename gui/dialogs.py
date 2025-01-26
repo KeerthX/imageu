@@ -1,4 +1,36 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QComboBox, QPushButton, QLabel, QLineEdit, QMessageBox
+
+
+class AddProcessDialog(QDialog):
+    def __init__(self, available_tools):
+        super().__init__()
+        self.setWindowTitle("Add Processing Tool")
+        self.setGeometry(400, 200, 300, 150)
+        self.selected_process = None
+
+        # Main layout
+        layout = QVBoxLayout(self)
+
+        # Label and ComboBox for selecting tools
+        self.label = QLabel("Select a processing tool:")
+        layout.addWidget(self.label)
+
+        self.tool_selector = QComboBox()
+        self.tool_selector.addItems(available_tools)
+        layout.addWidget(self.tool_selector)
+
+        # Add and Cancel buttons
+        self.add_button = QPushButton("Add")
+        self.add_button.clicked.connect(self.add_tool)
+        layout.addWidget(self.add_button)
+
+        self.cancel_button = QPushButton("Cancel")
+        self.cancel_button.clicked.connect(self.reject)
+        layout.addWidget(self.cancel_button)
+
+    def add_tool(self):
+        self.selected_process = self.tool_selector.currentText()
+        self.accept()
 
 
 class ConfigDialog(QDialog):
@@ -6,9 +38,9 @@ class ConfigDialog(QDialog):
         super().__init__()
         self.tool = tool
         self.setWindowTitle(f"Configure {tool.__class__.__name__}")
+        self.setGeometry(400, 200, 300, 150)
         self.layout = QVBoxLayout(self)
 
-        # Display tool parameters as editable fields
         self.config_inputs = {}
         for param, value in tool.get_parameters().items():
             self.layout.addWidget(QLabel(param))
@@ -16,7 +48,6 @@ class ConfigDialog(QDialog):
             self.layout.addWidget(input_field)
             self.config_inputs[param] = input_field
 
-        # Save button
         save_button = QPushButton("Save")
         save_button.clicked.connect(self.save_config)
         self.layout.addWidget(save_button)
@@ -24,29 +55,9 @@ class ConfigDialog(QDialog):
     def save_config(self):
         try:
             for param, input_field in self.config_inputs.items():
-                new_value = input_field.text().strip()
-
-                # Validate and set new values for specific parameters
-                if param == "kernel_size":  # Example: FilterTool
-                    new_value = int(new_value)
-                    if new_value <= 0 or new_value % 2 == 0:
-                        raise ValueError("Kernel size must be a positive odd integer.")
-                elif param in ["width", "height"]:  # Example: ResizeTool
-                    new_value = int(new_value)
-                    if new_value <= 0:
-                        raise ValueError(f"{param} must be a positive integer.")
-                else:
-                    # For generic string, float, or int parameters
-                    try:
-                        new_value = eval(new_value)  # Use eval carefully, or avoid it.
-                    except:
-                        pass
-
-                # Set the validated new value to the tool
+                new_value = eval(input_field.text().strip())
                 setattr(self.tool, param, new_value)
 
-            self.accept()  # Close the dialog after successful save
-
+            self.accept()
         except Exception as e:
-        # Show an error message if the input is invalid
             QMessageBox.critical(self, "Invalid Parameter", str(e))
