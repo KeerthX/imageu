@@ -1,0 +1,61 @@
+/* General Window Styling */
+QMainWindow {
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Buttons Styling */
+QPushButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+QPushButton:hover {
+    background-color: #45a049;
+}
+
+QPushButton:pressed {
+    background-color: #397d39;
+}
+
+/* Process List Styling */
+QListWidget {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 5px;
+}
+
+/* Image Viewer Styling */
+QGraphicsView {
+    background-color: #dcdcdc;
+    border: 1px solid #bbb;
+}
+
+/* Dialog Box Styling */
+QDialog {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+QLineEdit {
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+QComboBox {
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 3px;
+    background-color: white;
+}
