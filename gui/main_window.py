@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (
-    QMainWindow, QVBoxLayout, QWidget, QPushButton, QListWidget, QFileDialog, QHBoxLayout
+    QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QListWidget, QFileDialog, QGridLayout
 )
 from gui.image_viewer import ImageViewer
 from gui.dialogs import ConfigDialog, AddProcessDialog
@@ -10,9 +10,9 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Image Processing Tool")
-        self.setGeometry(200, 100, 1000, 600)
+        self.setGeometry(200, 100, 800, 600)
 
-        # Initialize variables
+        # Initialize ToolManager
         self.tool_manager = ToolManager()
 
         # Main layout
@@ -20,48 +20,51 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.central_widget)
         self.layout = QVBoxLayout(self.central_widget)
 
-        # Image viewer
+        # Top: Image viewer
         self.image_viewer = ImageViewer()
         self.layout.addWidget(self.image_viewer)
 
-        # Controls layout
-        controls_layout = QHBoxLayout()
+        # Bottom: Controls
+        bottom_layout = QHBoxLayout()
 
-        # Upload button
-        self.upload_button = QPushButton("Upload Image")
+        # Left panel: Upload and Save buttons
+        left_panel = QVBoxLayout()
+        self.upload_button = QPushButton("Upload")
         self.upload_button.clicked.connect(self.upload_image)
-        controls_layout.addWidget(self.upload_button)
+        left_panel.addWidget(self.upload_button)
 
-        # Save button
-        self.save_button = QPushButton("Save Image")
+        self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self.save_image)
-        controls_layout.addWidget(self.save_button)
+        left_panel.addWidget(self.save_button)
+        bottom_layout.addLayout(left_panel)
 
-        # Processing list
+        # Center panel: Process List
         self.process_list = QListWidget()
         self.process_list.itemDoubleClicked.connect(self.edit_process)
-        controls_layout.addWidget(self.process_list)
+        bottom_layout.addWidget(self.process_list)
 
-        # Add processing button
-        self.add_process_button = QPushButton("Add Processing")
+        # Right panel: Control buttons (Add, Move Up, Move Down, Remove)
+        right_panel = QVBoxLayout()
+        self.add_process_button = QPushButton("Add")
         self.add_process_button.clicked.connect(self.add_processing)
-        controls_layout.addWidget(self.add_process_button)
+        right_panel.addWidget(self.add_process_button)
 
-        # Move Up and Move Down buttons
         self.move_up_button = QPushButton("Move Up")
         self.move_up_button.clicked.connect(self.move_up)
-        controls_layout.addWidget(self.move_up_button)
+        right_panel.addWidget(self.move_up_button)
 
         self.move_down_button = QPushButton("Move Down")
         self.move_down_button.clicked.connect(self.move_down)
-        controls_layout.addWidget(self.move_down_button)
+        right_panel.addWidget(self.move_down_button)
 
-        # Remove button
         self.remove_button = QPushButton("Remove")
         self.remove_button.clicked.connect(self.remove_processing)
-        controls_layout.addWidget(self.remove_button)
+        right_panel.addWidget(self.remove_button)
 
-        self.layout.addLayout(controls_layout)
+        bottom_layout.addLayout(right_panel)
+
+        # Add bottom layout to main layout
+        self.layout.addLayout(bottom_layout)
 
     def upload_image(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Open Image", "", "Images (*.png *.jpg *.jpeg *.bmp)")
@@ -77,7 +80,7 @@ class MainWindow(QMainWindow):
 
     def add_processing(self):
         dialog = AddProcessDialog(self.tool_manager.get_available_tools())
-        if dialog.exec_():  # Dialog accepted
+        if dialog.exec_():
             process = dialog.selected_process
             if process:
                 tool = self.tool_manager.get_tool(process)
