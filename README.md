@@ -1,6 +1,6 @@
 # ImageU
 
-**ImageU** is an advanced image processing application that provides an intuitive UI for applying various image enhancement and transformation techniques. It includes real-time image processing, a modern full-screen UI, and dynamic parameter adjustments.
+**ImageU** is an simple image processing application that provides an intuitive UI for applying various image enhancement and transformation techniques. It includes real-time image processing, a modern full-screen UI, and dynamic parameter adjustments.
 
 ## 🚀 Features
 
