@@ -1,14 +1,20 @@
 import sys
 import os
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtCore import Qt
 from gui.main_window import MainWindow
 
+# Set attributes before QApplication creation
+if hasattr(Qt, 'AA_EnableHighDpiScaling'):
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+
 def load_stylesheet(file_path):
-    # Determine the correct base path for accessing assets
-    if getattr(sys, 'frozen', False):  # Running as a PyInstaller bundle
-        base_path = sys._MEIPASS  # Temporary extraction folder
+    if getattr(sys, 'frozen', False):
+        base_path = sys._MEIPASS
     else:
-        base_path = os.path.dirname(os.path.abspath(__file__))  # Script's directory
+        base_path = os.path.dirname(os.path.abspath(__file__))
 
     stylesheet_path = os.path.join(base_path, file_path)
 
@@ -17,15 +23,19 @@ def load_stylesheet(file_path):
             return file.read()
     except FileNotFoundError:
         print(f"Error: Stylesheet file '{stylesheet_path}' not found.")
-        sys.exit(1)
+        return ""
 
-if __name__ == "__main__":
+def main():
     app = QApplication(sys.argv)
     
     # Load and apply QSS stylesheet
     qss = load_stylesheet("assets/styles.qss")
-    app.setStyleSheet(qss)
+    if qss:
+        app.setStyleSheet(qss)
 
     window = MainWindow()
-    window.show()
+    window.showMaximized()
     sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()
