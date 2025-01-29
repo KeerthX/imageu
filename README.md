@@ -18,7 +18,7 @@
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/image-u.git
+git clone [https://github.com/yourusername/image-u.git](https://github.com/KeerthX/imageu)
 cd image-u
 ```
 
