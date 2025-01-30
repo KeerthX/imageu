@@ -1,20 +1,26 @@
-
-
 # gui/dialogs.py
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QComboBox, QPushButton, QLabel, 
     QLineEdit, QMessageBox, QFrame, QGraphicsOpacityEffect
 )
-from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, Qt, QPoint
-from PyQt5.QtGui import QColor, QPalette
+from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, Qt
+from PyQt5.QtGui import QPalette
+from tools.base_tool import ImageProcessingTool
 
-class AnimatedDialog(QDialog):
-    def __init__(self):
-        super().__init__()
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
+class BaseDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
         
-        # Create main frame
+        self.setup_ui()
+
+    def setup_ui(self):
+        # Main layout
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(20, 20, 20, 20)
+        
+        # Content frame
         self.frame = QFrame(self)
         self.frame.setObjectName("dialogFrame")
         self.frame.setStyleSheet("""
@@ -25,148 +31,105 @@ class AnimatedDialog(QDialog):
             }
         """)
         
-        # Setup opacity effect
-        self.opacity_effect = QGraphicsOpacityEffect()
-        self.frame.setGraphicsEffect(self.opacity_effect)
-        
-        # Setup animations
-        self.fade_in = QPropertyAnimation(self.opacity_effect, b"opacity")
-        self.fade_in.setDuration(300)
-        self.fade_in.setStartValue(0)
-        self.fade_in.setEndValue(1)
-        self.fade_in.setEasingCurve(QEasingCurve.InOutQuad)
+        self.frame_layout = QVBoxLayout(self.frame)
+        self.main_layout.addWidget(self.frame)
 
-    def showEvent(self, event):
-        super().showEvent(event)
-        self.fade_in.start()
+class AddProcessDialog(BaseDialog):
+    def __init__(self, available_tools, parent=None):
+        super().__init__(parent)
+        self.available_tools = available_tools
+        self.selected_process = None
+        self.setup_content()
 
-class AddProcessDialog(AnimatedDialog):
-    def __init__(self, available_tools):
-        super().__init__()
-        self.setWindowTitle("Add Processing Tool")
-        self.setFixedSize(400, 250)
-        
-        # Main layout
-        main_layout = QVBoxLayout(self)
-        layout = QVBoxLayout(self.frame)
-        
-        # Stylish label
-        self.label = QLabel("Select a processing tool")
-        self.label.setStyleSheet("""
-            QLabel {
-                color: #ECF0F1;
-                font-size: 16px;
-                font-weight: bold;
-                margin-bottom: 10px;
-            }
-        """)
-        layout.addWidget(self.label)
+    def setup_content(self):
+        # Title
+        title = QLabel("Add Processing Tool")
+        title.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
+        self.frame_layout.addWidget(title)
 
-        # Styled ComboBox
+        # Tool selector
         self.tool_selector = QComboBox()
-        self.tool_selector.addItems(available_tools)
+        self.tool_selector.addItems(self.available_tools)
         self.tool_selector.setStyleSheet("""
             QComboBox {
                 padding: 8px;
-                border-radius: 5px;
                 background: #34495E;
-                color: #ECF0F1;
+                color: white;
                 border: 1px solid #456789;
-            }
-            QComboBox::drop-down {
-                border: none;
-            }
-            QComboBox::down-arrow {
-                image: url(assets/down_arrow.png);
-                width: 12px;
-                height: 12px;
+                border-radius: 5px;
             }
         """)
-        layout.addWidget(self.tool_selector)
+        self.frame_layout.addWidget(self.tool_selector)
 
         # Buttons
         button_layout = QVBoxLayout()
-        self.add_button = QPushButton("Add")
-        self.add_button.setStyleSheet("""
+        
+        add_button = QPushButton("Add")
+        add_button.setStyleSheet("""
             QPushButton {
                 padding: 10px;
                 background: #2ECC71;
                 border: none;
                 border-radius: 5px;
                 color: white;
-                font-weight: bold;
             }
-            QPushButton:hover {
-                background: #27AE60;
-            }
+            QPushButton:hover { background: #27AE60; }
         """)
-        self.add_button.clicked.connect(self.add_tool)
+        add_button.clicked.connect(self.accept_tool)
         
-        self.cancel_button = QPushButton("Cancel")
-        self.cancel_button.setStyleSheet("""
+        cancel_button = QPushButton("Cancel")
+        cancel_button.setStyleSheet("""
             QPushButton {
                 padding: 10px;
                 background: #E74C3C;
                 border: none;
                 border-radius: 5px;
                 color: white;
-                font-weight: bold;
             }
-            QPushButton:hover {
-                background: #C0392B;
-            }
+            QPushButton:hover { background: #C0392B; }
         """)
-        self.cancel_button.clicked.connect(self.reject)
+        cancel_button.clicked.connect(self.reject)
         
-        button_layout.addWidget(self.add_button)
-        button_layout.addWidget(self.cancel_button)
-        layout.addLayout(button_layout)
-        
-        main_layout.addWidget(self.frame)
+        button_layout.addWidget(add_button)
+        button_layout.addWidget(cancel_button)
+        self.frame_layout.addLayout(button_layout)
 
-    def add_tool(self):
+    def accept_tool(self):
         self.selected_process = self.tool_selector.currentText()
         self.accept()
 
-class ConfigDialog(AnimatedDialog):
-    def __init__(self, tool):
-        super().__init__()
+class ConfigDialog(BaseDialog):
+    def __init__(self, tool, parent=None):
         self.tool = tool
-        self.setWindowTitle(f"Configure {tool.__class__.__name__}")
-        self.setFixedSize(400, 300)
-        
-        # Main layout
-        main_layout = QVBoxLayout(self)
-        self.layout = QVBoxLayout(self.frame)
+        self.original_parameters = tool.get_parameters().copy()
+        super().__init__(parent)
+        self.setup_content()
 
-        # Parameter inputs with styling
-        self.config_inputs = {}
-        for param, value in tool.get_parameters().items():
+    def setup_content(self):
+        # Title
+        title = QLabel(f"Configure {self.tool.__class__.__name__}")
+        title.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
+        self.frame_layout.addWidget(title)
+
+        # Parameter inputs
+        self.param_inputs = {}
+        for param, value in self.tool.get_parameters().items():
             param_label = QLabel(param)
-            param_label.setStyleSheet("""
-                QLabel {
-                    color: #ECF0F1;
-                    font-size: 14px;
-                    margin-top: 5px;
-                }
-            """)
-            self.layout.addWidget(param_label)
+            param_label.setStyleSheet("color: white;")
+            self.frame_layout.addWidget(param_label)
             
             input_field = QLineEdit(str(value))
             input_field.setStyleSheet("""
                 QLineEdit {
                     padding: 8px;
-                    border-radius: 5px;
                     background: #34495E;
-                    color: #ECF0F1;
+                    color: white;
                     border: 1px solid #456789;
-                }
-                QLineEdit:focus {
-                    border: 1px solid #3498DB;
+                    border-radius: 5px;
                 }
             """)
-            self.layout.addWidget(input_field)
-            self.config_inputs[param] = input_field
+            self.frame_layout.addWidget(input_field)
+            self.param_inputs[param] = input_field
 
         # Save button
         save_button = QPushButton("Save")
@@ -175,25 +138,33 @@ class ConfigDialog(AnimatedDialog):
                 padding: 10px;
                 background: #2ECC71;
                 border: none;
-                border-radius: 5px;
+                border-radius: 5px
                 color: white;
-                font-weight: bold;
-                margin-top: 15px;
             }
-            QPushButton:hover {
-                background: #27AE60;
-            }
+            QPushButton:hover { background: #27AE60; }
         """)
         save_button.clicked.connect(self.save_config)
-        self.layout.addWidget(save_button)
-        
-        main_layout.addWidget(self.frame)
+        self.frame_layout.addWidget(save_button)
 
     def save_config(self):
         try:
-            for param, input_field in self.config_inputs.items():
-                new_value = eval(input_field.text().strip())
-                setattr(self.tool, param, new_value)
+            new_params = {}
+            for param, input_field in self.param_inputs.items():
+                try:
+                    new_value = eval(input_field.text().strip())
+                    new_params[param] = new_value
+                except Exception as e:
+                    raise ValueError(f"Invalid value for {param}: {str(e)}")
+
+            # Test parameters on a copy of the tool
+            test_tool = self.tool.__class__()
+            test_tool.update_parameters(new_params)
+            
+            # If successful, update the actual tool
+            self.tool.update_parameters(new_params)
             self.accept()
+            
         except Exception as e:
-            QMessageBox.critical(self, "Invalid Parameter", str(e))
+            QMessageBox.critical(self, "Error", str(e))
+            # Restore original parameters
+            self.tool.update_parameters(self.original_parameters)
