@@ -18,7 +18,8 @@
   <a target="code" href="///D:/My%20Stuff%201/Projects/imageu/main.py" type="text/plain"><tt>main.py</tt></a>
 <span class="moduletype">Script</span>  <div class="import">
 imports:
-    <a href="#PyQt5.QtWidgets">PyQt5.QtWidgets</a>
+    <a href="#PyQt5.QtCore">PyQt5.QtCore</a>
+ &#8226;   <a href="#PyQt5.QtWidgets">PyQt5.QtWidgets</a>
  &#8226;   <a href="#_collections_abc">_collections_abc</a>
  &#8226;   <a href="#_weakrefset">_weakrefset</a>
  &#8226;   <a href="#abc">abc</a>
@@ -302,6 +303,10 @@ imports:
 imported by:
     <a href="#PyQt5.QtGui">PyQt5.QtGui</a>
  &#8226;   <a href="#PyQt5.QtWidgets">PyQt5.QtWidgets</a>
+ &#8226;   <a href="#gui.dialogs">gui.dialogs</a>
+ &#8226;   <a href="#gui.image_viewer">gui.image_viewer</a>
+ &#8226;   <a href="#gui.main_window">gui.main_window</a>
+ &#8226;   <a href="#main.py">main.py</a>
 
   </div>
 
@@ -318,7 +323,9 @@ imports:
   <div class="import">
 imported by:
     <a href="#PyQt5.QtWidgets">PyQt5.QtWidgets</a>
+ &#8226;   <a href="#gui.dialogs">gui.dialogs</a>
  &#8226;   <a href="#gui.image_viewer">gui.image_viewer</a>
+ &#8226;   <a href="#gui.main_window">gui.main_window</a>
 
   </div>
 
@@ -1419,6 +1426,7 @@ imported by:
  &#8226;   <a href="#os">os</a>
  &#8226;   <a href="#selectors">selectors</a>
  &#8226;   <a href="#threadpoolctl">threadpoolctl</a>
+ &#8226;   <a href="#tools.base_tool">tools.base_tool</a>
  &#8226;   <a href="#typing">typing</a>
 
   </div>
@@ -3412,12 +3420,8 @@ imported by:
  &#8226;   <a href="#cv2.utils">cv2.utils</a>
  &#8226;   <a href="#cv2.version">cv2.version</a>
  &#8226;   <a href="#gui.image_viewer">gui.image_viewer</a>
- &#8226;   <a href="#tools.brightness">tools.brightness</a>
- &#8226;   <a href="#tools.contrast">tools.contrast</a>
- &#8226;   <a href="#tools.filter">tools.filter</a>
- &#8226;   <a href="#tools.resize">tools.resize</a>
- &#8226;   <a href="#tools.rotate">tools.rotate</a>
- &#8226;   <a href="#tools.sharpen">tools.sharpen</a>
+ &#8226;   <a href="#tools.brightness_tool">tools.brightness_tool</a>
+ &#8226;   <a href="#tools.filter_tool">tools.filter_tool</a>
 
   </div>
 
@@ -7200,13 +7204,17 @@ imported by:
   <a target="code" href="///D:/My%20Stuff%201/Projects/imageu/gui/dialogs.py" type="text/plain"><tt>gui.dialogs</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#PyQt5.QtWidgets">PyQt5.QtWidgets</a>
+    <a href="#PyQt5.QtCore">PyQt5.QtCore</a>
+ &#8226;   <a href="#PyQt5.QtGui">PyQt5.QtGui</a>
+ &#8226;   <a href="#PyQt5.QtWidgets">PyQt5.QtWidgets</a>
  &#8226;   <a href="#gui">gui</a>
+ &#8226;   <a href="#tools.base_tool">tools.base_tool</a>
 
   </div>
   <div class="import">
 imported by:
-    <a href="#gui.main_window">gui.main_window</a>
+    <a href="#gui.image_viewer">gui.image_viewer</a>
+ &#8226;   <a href="#gui.main_window">gui.main_window</a>
 
   </div>
 
@@ -7217,10 +7225,12 @@ imported by:
   <a target="code" href="///D:/My%20Stuff%201/Projects/imageu/gui/image_viewer.py" type="text/plain"><tt>gui.image_viewer</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#PyQt5.QtGui">PyQt5.QtGui</a>
+    <a href="#PyQt5.QtCore">PyQt5.QtCore</a>
+ &#8226;   <a href="#PyQt5.QtGui">PyQt5.QtGui</a>
  &#8226;   <a href="#PyQt5.QtWidgets">PyQt5.QtWidgets</a>
  &#8226;   <a href="#cv2">cv2</a>
  &#8226;   <a href="#gui">gui</a>
+ &#8226;   <a href="#gui.dialogs">gui.dialogs</a>
 
   </div>
   <div class="import">
@@ -7236,7 +7246,9 @@ imported by:
   <a target="code" href="///D:/My%20Stuff%201/Projects/imageu/gui/main_window.py" type="text/plain"><tt>gui.main_window</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#PyQt5.QtWidgets">PyQt5.QtWidgets</a>
+    <a href="#PyQt5.QtCore">PyQt5.QtCore</a>
+ &#8226;   <a href="#PyQt5.QtGui">PyQt5.QtGui</a>
+ &#8226;   <a href="#PyQt5.QtWidgets">PyQt5.QtWidgets</a>
  &#8226;   <a href="#gui">gui</a>
  &#8226;   <a href="#gui.dialogs">gui.dialogs</a>
  &#8226;   <a href="#gui.image_viewer">gui.image_viewer</a>
@@ -7505,7 +7517,6 @@ imports:
  &#8226;   <a href="#importlib">importlib</a>
  &#8226;   <a href="#importlib._bootstrap">importlib._bootstrap</a>
  &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
- &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
  &#8226;   <a href="#sys">sys</a>
  &#8226;   <a href="#warnings">warnings</a>
 
@@ -7643,7 +7654,6 @@ imports:
   <div class="import">
 imported by:
     <a href="#ctypes.util">ctypes.util</a>
- &#8226;   <a href="#importlib">importlib</a>
  &#8226;   <a href="#importlib.abc">importlib.abc</a>
  &#8226;   <a href="#inspect">inspect</a>
  &#8226;   <a href="#numpy.compat.py3k">numpy.compat.py3k</a>
@@ -9565,7 +9575,8 @@ imported by:
  &#8226;   <a href="#numpy.testing.overrides">numpy.testing.overrides</a>
  &#8226;   <a href="#numpy.typing">numpy.typing</a>
  &#8226;   <a href="#numpy.version">numpy.version</a>
- &#8226;   <a href="#tools.sharpen">tools.sharpen</a>
+ &#8226;   <a href="#tools.brightness_tool">tools.brightness_tool</a>
+ &#8226;   <a href="#tools.filter_tool">tools.filter_tool</a>
 
   </div>
 
@@ -16251,110 +16262,61 @@ imported by:
   <a target="code" href="///D:/My%20Stuff%201/Projects/imageu/tools/__init__.py" type="text/plain"><tt>tools</tt></a>
 <span class="moduletype">Package</span>  <div class="import">
 imported by:
-    <a href="#tools.brightness">tools.brightness</a>
- &#8226;   <a href="#tools.contrast">tools.contrast</a>
- &#8226;   <a href="#tools.filter">tools.filter</a>
- &#8226;   <a href="#tools.resize">tools.resize</a>
- &#8226;   <a href="#tools.rotate">tools.rotate</a>
- &#8226;   <a href="#tools.sharpen">tools.sharpen</a>
+    <a href="#tools.base_tool">tools.base_tool</a>
+ &#8226;   <a href="#tools.brightness_tool">tools.brightness_tool</a>
+ &#8226;   <a href="#tools.filter_tool">tools.filter_tool</a>
 
   </div>
 
 </div>
 
 <div class="node">
-  <a name="tools.brightness"></a>
-  <a target="code" href="///D:/My%20Stuff%201/Projects/imageu/tools/brightness.py" type="text/plain"><tt>tools.brightness</tt></a>
+  <a name="tools.base_tool"></a>
+  <a target="code" href="///D:/My%20Stuff%201/Projects/imageu/tools/base_tool.py" type="text/plain"><tt>tools.base_tool</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#cv2">cv2</a>
+    <a href="#abc">abc</a>
  &#8226;   <a href="#tools">tools</a>
 
   </div>
   <div class="import">
 imported by:
-    <a href="#utils.tool_manager">utils.tool_manager</a>
+    <a href="#gui.dialogs">gui.dialogs</a>
+ &#8226;   <a href="#tools.brightness_tool">tools.brightness_tool</a>
+ &#8226;   <a href="#tools.filter_tool">tools.filter_tool</a>
 
   </div>
 
 </div>
 
 <div class="node">
-  <a name="tools.contrast"></a>
-  <a target="code" href="///D:/My%20Stuff%201/Projects/imageu/tools/contrast.py" type="text/plain"><tt>tools.contrast</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#cv2">cv2</a>
- &#8226;   <a href="#tools">tools</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#utils.tool_manager">utils.tool_manager</a>
-
-  </div>
-
-</div>
-
-<div class="node">
-  <a name="tools.filter"></a>
-  <a target="code" href="///D:/My%20Stuff%201/Projects/imageu/tools/filter.py" type="text/plain"><tt>tools.filter</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#cv2">cv2</a>
- &#8226;   <a href="#tools">tools</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#utils.tool_manager">utils.tool_manager</a>
-
-  </div>
-
-</div>
-
-<div class="node">
-  <a name="tools.resize"></a>
-  <a target="code" href="///D:/My%20Stuff%201/Projects/imageu/tools/resize.py" type="text/plain"><tt>tools.resize</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#cv2">cv2</a>
- &#8226;   <a href="#tools">tools</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#utils.tool_manager">utils.tool_manager</a>
-
-  </div>
-
-</div>
-
-<div class="node">
-  <a name="tools.rotate"></a>
-  <a target="code" href="///D:/My%20Stuff%201/Projects/imageu/tools/rotate.py" type="text/plain"><tt>tools.rotate</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#cv2">cv2</a>
- &#8226;   <a href="#tools">tools</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#utils.tool_manager">utils.tool_manager</a>
-
-  </div>
-
-</div>
-
-<div class="node">
-  <a name="tools.sharpen"></a>
-  <a target="code" href="///D:/My%20Stuff%201/Projects/imageu/tools/sharpen.py" type="text/plain"><tt>tools.sharpen</tt></a>
+  <a name="tools.brightness_tool"></a>
+  <a target="code" href="///D:/My%20Stuff%201/Projects/imageu/tools/brightness_tool.py" type="text/plain"><tt>tools.brightness_tool</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
     <a href="#cv2">cv2</a>
  &#8226;   <a href="#numpy">numpy</a>
  &#8226;   <a href="#tools">tools</a>
+ &#8226;   <a href="#tools.base_tool">tools.base_tool</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#utils.tool_manager">utils.tool_manager</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tools.filter_tool"></a>
+  <a target="code" href="///D:/My%20Stuff%201/Projects/imageu/tools/filter_tool.py" type="text/plain"><tt>tools.filter_tool</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#cv2">cv2</a>
+ &#8226;   <a href="#numpy">numpy</a>
+ &#8226;   <a href="#tools">tools</a>
+ &#8226;   <a href="#tools.base_tool">tools.base_tool</a>
 
   </div>
   <div class="import">
@@ -17007,12 +16969,8 @@ imported by:
   <a target="code" href="///D:/My%20Stuff%201/Projects/imageu/utils/tool_manager.py" type="text/plain"><tt>utils.tool_manager</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#tools.brightness">tools.brightness</a>
- &#8226;   <a href="#tools.contrast">tools.contrast</a>
- &#8226;   <a href="#tools.filter">tools.filter</a>
- &#8226;   <a href="#tools.resize">tools.resize</a>
- &#8226;   <a href="#tools.rotate">tools.rotate</a>
- &#8226;   <a href="#tools.sharpen">tools.sharpen</a>
+    <a href="#tools.brightness_tool">tools.brightness_tool</a>
+ &#8226;   <a href="#tools.filter_tool">tools.filter_tool</a>
  &#8226;   <a href="#utils">utils</a>
 
   </div>
