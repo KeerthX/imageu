@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, Qt
 from PyQt5.QtGui import QPalette
-from tools.base_tool import ImageProcessingTool
 
 class BaseDialog(QDialog):
     def __init__(self, parent=None):
@@ -36,8 +35,8 @@ class BaseDialog(QDialog):
 
 class AddProcessDialog(BaseDialog):
     def __init__(self, available_tools, parent=None):
-        super().__init__(parent)
         self.available_tools = available_tools
+        super().__init__(parent)
         self.selected_process = None
         self.setup_content()
 
@@ -131,20 +130,38 @@ class ConfigDialog(BaseDialog):
             self.frame_layout.addWidget(input_field)
             self.param_inputs[param] = input_field
 
-        # Save button
+        # Buttons
+        button_layout = QVBoxLayout()
+        
         save_button = QPushButton("Save")
         save_button.setStyleSheet("""
             QPushButton {
                 padding: 10px;
                 background: #2ECC71;
                 border: none;
-                border-radius: 5px
+                border-radius: 5px;
                 color: white;
             }
             QPushButton:hover { background: #27AE60; }
         """)
         save_button.clicked.connect(self.save_config)
-        self.frame_layout.addWidget(save_button)
+
+        cancel_button = QPushButton("Cancel")
+        cancel_button.setStyleSheet("""
+            QPushButton {
+                padding: 10px;
+                background: #E74C3C;
+                border: none;
+                border-radius: 5px;
+                color: white;
+            }
+            QPushButton:hover { background: #C0392B; }
+        """)
+        cancel_button.clicked.connect(self.reject)
+        
+        button_layout.addWidget(save_button)
+        button_layout.addWidget(cancel_button)
+        self.frame_layout.addLayout(button_layout)
 
     def save_config(self):
         try:

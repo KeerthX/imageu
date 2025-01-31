@@ -136,6 +136,32 @@ class ImageViewer(QGraphicsView):
             self.show_error(f"Failed to remove processing tool: {str(e)}")
             return False
 
+    def move_processing(self, from_index, to_index):
+        try:
+            if not (0 <= from_index < len(self.processing_stack) and 
+                   0 <= to_index < len(self.processing_stack)):
+                raise IndexError("Invalid processing tool index")
+            
+            # Create a new processing stack with the moved tool
+            new_stack = self.processing_stack.copy()
+            tool = new_stack.pop(from_index)
+            new_stack.insert(to_index, tool)
+            
+            # Test the new processing chain
+            temp_image = self.original_image.copy()
+            for tool in new_stack:
+                temp_image = tool.apply(temp_image)
+            
+            # If successful, update the actual stack and image
+            self.processing_stack = new_stack
+            self.processed_image = temp_image
+            self.update_display()
+            return True
+            
+        except Exception as e:
+            self.show_error(f"Failed to move processing tool: {str(e)}")
+            return False
+
     def show_error(self, message):
         self.error_label.setText(message)
         self.error_label.adjustSize()
@@ -165,6 +191,7 @@ class ImageViewer(QGraphicsView):
         except Exception as e:
             self.show_error(f"Error saving image: {str(e)}")
             return False
+
     def apply_processing(self):
         try:
             if self.original_image is None:

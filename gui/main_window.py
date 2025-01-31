@@ -1,3 +1,4 @@
+# gui/main_window.py
 from PyQt5.QtWidgets import (
     QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
     QListWidget, QFileDialog, QFrame, QLabel, QMessageBox,
@@ -8,7 +9,6 @@ from PyQt5.QtGui import QIcon
 from .image_viewer import ImageViewer 
 from .dialogs import AddProcessDialog, ConfigDialog
 from utils.tool_manager import ToolManager
-
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -96,6 +96,19 @@ class MainWindow(QMainWindow):
         self.remove_button.clicked.connect(self.remove_processing)
         layout.addWidget(self.remove_button)
 
+        # Process movement buttons
+        move_layout = QHBoxLayout()
+        
+        self.move_up_button = self.create_button("Move Up", "arrow-up.png")
+        self.move_up_button.clicked.connect(self.move_process_up)
+        move_layout.addWidget(self.move_up_button)
+        
+        self.move_down_button = self.create_button("Move Down", "arrow-down.png")
+        self.move_down_button.clicked.connect(self.move_process_down)
+        move_layout.addWidget(self.move_down_button)
+        
+        layout.addLayout(move_layout)
+
     def create_button(self, text, icon_path=None):
         button = QPushButton(text)
         if icon_path:
@@ -152,7 +165,10 @@ class MainWindow(QMainWindow):
 
     def update_button_states(self):
         has_selection = bool(self.process_list.selectedItems())
+        current_row = self.process_list.currentRow()
         self.remove_button.setEnabled(has_selection)
+        self.move_up_button.setEnabled(has_selection and current_row > 0)
+        self.move_down_button.setEnabled(has_selection and current_row < self.process_list.count() - 1)
 
     def upload_image(self):
         try:
@@ -207,6 +223,32 @@ class MainWindow(QMainWindow):
                 self.statusBar().showMessage("Processing tool removed", 3000)
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
+
+    def move_process_up(self):
+        current_row = self.process_list.currentRow()
+        if current_row > 0:
+            try:
+                if self.image_viewer.move_processing(current_row, current_row - 1):
+                    # Swap items in the list widget
+                    item = self.process_list.takeItem(current_row)
+                    self.process_list.insertItem(current_row - 1, item)
+                    self.process_list.setCurrentRow(current_row - 1)
+                    self.statusBar().showMessage("Process moved up", 3000)
+            except Exception as e:
+                QMessageBox.critical(self, "Error", str(e))
+
+    def move_process_down(self):
+        current_row = self.process_list.currentRow()
+        if current_row < self.process_list.count() - 1:
+            try:
+                if self.image_viewer.move_processing(current_row, current_row + 1):
+                    # Swap items in the list widget
+                    item = self.process_list.takeItem(current_row)
+                    self.process_list.insertItem(current_row + 1, item)
+                    self.process_list.setCurrentRow(current_row + 1)
+                    self.statusBar().showMessage("Process moved down", 3000)
+            except Exception as e:
+                QMessageBox.critical(self, "Error", str(e))
 
     def edit_process(self, item):
         try:
