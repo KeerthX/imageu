@@ -2,13 +2,18 @@
 from PyQt5.QtWidgets import (
     QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
     QListWidget, QFileDialog, QFrame, QLabel, QMessageBox,
-    QSizePolicy, QSpacerItem
+    QSizePolicy, QSpacerItem, QLineEdit, QTextEdit
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from .image_viewer import ImageViewer 
 from .dialogs import AddProcessDialog, ConfigDialog
 from utils.tool_manager import ToolManager
+
+import cv2
+import google.generativeai as genai
+from PIL import Image
+import markdown
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -31,14 +36,15 @@ class MainWindow(QMainWindow):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # Create sidebar and main content
-        self.setup_sidebar(main_layout)
+        # Create sidebars and main content
+        self.setup_left_sidebar(main_layout)
         self.setup_main_content(main_layout)
+        self.setup_right_sidebar(main_layout)
 
         # Initialize tool manager
         self.tool_manager = ToolManager()
 
-    def setup_sidebar(self, main_layout):
+    def setup_left_sidebar(self, main_layout):
         # Sidebar container
         sidebar = QFrame()
         sidebar.setObjectName("sidebar")
@@ -159,6 +165,95 @@ class MainWindow(QMainWindow):
 
         main_layout.addWidget(content)
 
+    def setup_right_sidebar(self, main_layout):
+        # Right sidebar container
+        right_sidebar = QFrame()
+        right_sidebar.setObjectName("rightSidebar")
+        right_sidebar.setStyleSheet("""
+            QFrame#rightSidebar {
+                background: #2C3E50;
+                border-left: 1px solid #34495E;
+                min-width: 300px;
+                max-width: 300px;
+            }
+        """)
+        
+        sidebar_layout = QVBoxLayout(right_sidebar)
+        sidebar_layout.setContentsMargins(10, 20, 10, 20)
+
+        # Title
+        title = QLabel("Gemini Image Analysis")
+        title.setStyleSheet("""
+            QLabel {
+                color: white;
+                font-size: 24px;
+                font-weight: bold;
+                margin-bottom: 20px;
+            }
+        """)
+        sidebar_layout.addWidget(title)
+
+        # API Key input
+        api_key_label = QLabel("Gemini API Key:")
+        api_key_label.setStyleSheet("color: white;")
+        sidebar_layout.addWidget(api_key_label)
+
+        self.api_key_input = QLineEdit()
+        self.api_key_input.setEchoMode(QLineEdit.Password)
+        self.api_key_input.setStyleSheet("""
+            QLineEdit {
+                padding: 8px;
+                background: #34495E;
+                color: white;
+                border: 1px solid #456789;
+                border-radius: 5px;
+            }
+        """)
+        sidebar_layout.addWidget(self.api_key_input)
+
+        # Analyze button
+        self.analyze_button = QPushButton("Analyze with Gemini")
+        self.analyze_button.setStyleSheet("""
+            QPushButton {
+                padding: 10px;
+                background: #2ECC71;
+                border: none;
+                border-radius: 5px;
+                color: white;
+                margin: 10px 0;
+            }
+            QPushButton:hover { background: #27AE60; }
+            QPushButton:disabled { background: #95A5A6; }
+        """)
+        self.analyze_button.clicked.connect(self.analyze_image)
+        sidebar_layout.addWidget(self.analyze_button)
+
+        # Results area
+        self.analysis_results = QTextEdit()
+        self.analysis_results.setReadOnly(True)
+        self.analysis_results.setPlaceholderText("Upload an image and click Analyze to get Gemini's analysis")
+        self.analysis_results.setStyleSheet("""
+            QTextEdit {
+                color: white;
+                background: #34495E;
+                padding: 10px;
+                border-radius: 5px;
+                min-height: 200px;
+                border: none;
+            }
+            QTextEdit:focus {
+                border: none;
+                outline: none;
+            }
+        """)
+        sidebar_layout.addWidget(self.analysis_results)
+
+        # Add stretch to push everything to the top
+        sidebar_layout.addStretch()
+
+        # Add to main layout
+        main_layout.addWidget(right_sidebar)
+
     def setup_connections(self):
         self.process_list.itemSelectionChanged.connect(self.update_button_states)
         self.update_button_states()
@@ -262,3 +357,50 @@ class MainWindow(QMainWindow):
                 self.statusBar().showMessage("Processing tool updated", 3000)
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
+
+    def analyze_image(self):
+        # Check if image exists
+        if self.image_viewer.original_image is None:
+            QMessageBox.warning(self, "Warning", "Please upload an image first")
+            return
+
+        # Get API key
+        api_key = self.api_key_input.text().strip()
+        if not api_key:
+            QMessageBox.warning(self, "Warning", "Please enter your Gemini API key")
+            return
+
+        try:
+            self.analyze_button.setEnabled(False)
+            self.analysis_results.setText("Analyzing image with Gemini...")
+            
+            # Get the appropriate image (processed if exists, otherwise original)
+            image_to_analyze = self.image_viewer.processed_image if self.image_viewer.processed_image is not None else self.image_viewer.original_image
+            
+            # Convert OpenCV BGR to RGB
+            rgb_image = cv2.cvtColor(image_to_analyze, cv2.COLOR_BGR2RGB)
+            
+            # Convert numpy array to PIL Image
+            pil_image = Image.fromarray(rgb_image)
+            
+            # Configure Gemini
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            
+            # Generate content
+            response = model.generate_content([
+                "Analyze this image in detail. Describe what you see, including any notable objects, patterns, colors, or interesting features. If there's text in the image, include that as well. Format your response in markdown with appropriate headers, lists, and emphasis where relevant.",
+                pil_image
+            ])
+            
+            # Convert markdown to HTML and display
+            html_content = markdown.markdown(response.text)
+            self.analysis_results.setHtml(html_content)
+
+        except Exception as e:
+            error_msg = f"Failed to analyze image: {str(e)}"
+            QMessageBox.critical(self, "Error", error_msg)
+            self.analysis_results.setPlainText("Analysis failed. Please try again.")
+        
+        finally:
+            self.analyze_button.setEnabled(True)
