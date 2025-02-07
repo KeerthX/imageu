@@ -41,6 +41,19 @@ from tools.black_hat_transform import BlackHatTransformTool
 from tools.hough_transform import HoughTransformTool
 from tools.unsharp_masking import UnsharpMaskingTool
 from tools.vibrance_adjustment import VibranceAdjustmentTool
+from tools.wavelet_transform import WaveletTransformTool
+from tools.surf_feature_detection import SURFFeatureDetectionTool
+from tools.sift_feature_detection import SIFTFeatureDetectionTool
+from tools.pixelation import PixelationTool
+from tools.pencil_sketch import PencilSketchTool
+from tools.oil_paint import OilPaintingTool
+from tools.lbp import LBPTool
+from tools.glitch_effect import GlitchEffectTool
+from tools.gabor_filter import GaborFilterTool
+from tools.fast_corner_detection import FASTCornerDetectionTool
+from tools.emboss import EmbossingTool
+from tools.dehaze import DehazingTool
+from tools.cartoonize import CartoonizationTool
 
 class ToolCategory(str, Enum):
     ADJUSTMENT = "Adjustment"
@@ -53,6 +66,8 @@ class ToolCategory(str, Enum):
     FEATURE_DETECTION = "Feature Detection"
     THRESHOLD = "Threshold"
     TRANSFORM = "Transform"
+    ARTISTIC = "Artistic"
+    TEXTURE = "Texture"
 
 class ToolManager:
     def __init__(self):
@@ -64,6 +79,11 @@ class ToolManager:
             "ExposureAdjustment": ToolCategory.ADJUSTMENT,
             "GammaCorrection": ToolCategory.ADJUSTMENT,
             "VibranceAdjustment": ToolCategory.ADJUSTMENT,
+
+            # Feature Detection
+            "SURFFeatureDetection": ToolCategory.FEATURE_DETECTION,
+            "SIFTFeatureDetection": ToolCategory.FEATURE_DETECTION,
+            "FASTCornerDetection": ToolCategory.FEATURE_DETECTION,
             
             # Filter Tools
             "BilateralFilter": ToolCategory.FILTER,
@@ -72,6 +92,7 @@ class ToolManager:
             "SobelFilter": ToolCategory.FILTER,
             "UnsharpMasking": ToolCategory.FILTER,
             "HighPassFilter": ToolCategory.FILTER,
+            "GaborFilter": ToolCategory.FILTER,
             
             # Edge Detection Tools
             "CannyEdgeDetection": ToolCategory.EDGE_DETECTION,
@@ -104,6 +125,8 @@ class ToolManager:
             "LaplacianSharpening": ToolCategory.EFFECT,
             "Posterization": ToolCategory.EFFECT,
             "SepiaEffect": ToolCategory.EFFECT,
+            "GlitchEffect": ToolCategory.EFFECT,
+            "Dehazing": ToolCategory.EFFECT,
 
             # Feature Detection Tools
             "ORBFeatureDetection": ToolCategory.FEATURE_DETECTION,
@@ -113,48 +136,92 @@ class ToolManager:
             "SimpleThreshold": ToolCategory.THRESHOLD,
             "AdaptiveThreshold": ToolCategory.THRESHOLD,
             "OtsuThreshold": ToolCategory.THRESHOLD,
+
+            # Artistic Effects
+            "Pixelation": ToolCategory.ARTISTIC,
+            "PencilSketch": ToolCategory.ARTISTIC,
+            "OilPainting": ToolCategory.ARTISTIC,
+            "Cartoonization": ToolCategory.ARTISTIC,
+            "Embossing": ToolCategory.ARTISTIC,
+
+            # Transform Tools
+            "WaveletTransform": ToolCategory.TRANSFORM,
+
+            # Texture Tools 
+            "LBP": ToolCategory.TEXTURE,
         }
 
         # Define tool class mapping
         self.tools: Dict[str, Type] = {
-            "BilateralFilter": BilateralFilterTool,
-            "BrightnessAdjustment": BrightnessAdjustmentTool,
-            "CannyEdgeDetection": CannyEdgeDetectionTool,
-            "Closing": ClosingTool,
-            "ColorBalancing": ColorBalancingTool,
-            "ContrastAdjustment": ContrastAdjustmentTool,
-            "DarkenImage": DarkenImageTool,
-            "Dilation": DilationTool,
-            "Erosion": ErosionTool,
-            "ExposureAdjustment": ExposureAdjustmentTool,
-            "FlippingMirroring": FlippingMirroringTool,
-            "GammaCorrection": GammaCorrectionTool,
-            "GaussianBlur": GaussianBlurTool,
-            "GaussianNoiseReduction": GaussianNoiseReductionTool,
-            "GrayscaleConversion": GrayscaleConversionTool,
-            "HighPassFilter": HighPassFilterTool,
-            "HueAdjustment": HueAdjustmentTool,
-            "InvertColors": InvertColorsTool,
-            "LaplacianEdgeDetection": LaplacianEdgeDetectionTool,
-            "LaplacianSharpening": LaplacianSharpeningTool,
-            "MedianBlur": MedianBlurTool,
-            "NonLocalMeansDenoising": NonLocalMeansDenoisingTool,
-            "Opening": OpeningTool,
-            "ORBFeatureDetection": ORBFeatureDetectionTool,
-            "OtsuThreshold": OtsuThresholdTool,
-            "Posterization": PosterizationTool,
-            "PrewittOperator": PrewittOperatorTool,
-            "SaturationAdjustment": SaturationAdjustmentTool,
-            "SelectiveColorReplacement": SelectiveColorReplacementTool,
-            "SepiaEffect": SepiaEffectTool,
-            "SimpleThreshold": SimpleThresholdTool,
-            "AdaptiveThreshold": AdaptiveThresholdTool,
-            "SobelFilter": SobelFilterTool,
-            "TopHatTransform": TopHatTransformTool,
-            "BlackHatTransform": BlackHatTransformTool,
-            "HoughTransform": HoughTransformTool,
-            "UnsharpMasking": UnsharpMaskingTool,
-            "VibranceAdjustment": VibranceAdjustmentTool,
+            # Filtering & Noise Reduction
+    "BilateralFilter": BilateralFilterTool,
+    "GaussianBlur": GaussianBlurTool,
+    "MedianBlur": MedianBlurTool,
+    "GaussianNoiseReduction": GaussianNoiseReductionTool,
+    "NonLocalMeansDenoising": NonLocalMeansDenoisingTool,
+    "WaveletTransform": WaveletTransformTool,
+    "GaborFilter": GaborFilterTool,
+
+    # Image Enhancement & Adjustment
+    "BrightnessAdjustment": BrightnessAdjustmentTool,
+    "ContrastAdjustment": ContrastAdjustmentTool,
+    "ExposureAdjustment": ExposureAdjustmentTool,
+    "GammaCorrection": GammaCorrectionTool,
+    "HueAdjustment": HueAdjustmentTool,
+    "SaturationAdjustment": SaturationAdjustmentTool,
+    "VibranceAdjustment": VibranceAdjustmentTool,
+    "ColorBalancing": ColorBalancingTool,
+    "DarkenImage": DarkenImageTool,
+
+    # Edge Detection & Feature Detection
+    "CannyEdgeDetection": CannyEdgeDetectionTool,
+    "LaplacianEdgeDetection": LaplacianEdgeDetectionTool,
+    "PrewittOperator": PrewittOperatorTool,
+    "SobelFilter": SobelFilterTool,
+    "FASTCornerDetection": FASTCornerDetectionTool,
+    "ORBFeatureDetection": ORBFeatureDetectionTool,
+    "SURFFeatureDetection": SURFFeatureDetectionTool,
+    "SIFTFeatureDetection": SIFTFeatureDetectionTool,
+
+    # Morphological Operations
+    "Erosion": ErosionTool,
+    "Dilation": DilationTool,
+    "Opening": OpeningTool,
+    "Closing": ClosingTool,
+    "TopHatTransform": TopHatTransformTool,
+    "BlackHatTransform": BlackHatTransformTool,
+
+    # Thresholding & Binarization
+    "OtsuThreshold": OtsuThresholdTool,
+    "SimpleThreshold": SimpleThresholdTool,
+    "AdaptiveThreshold": AdaptiveThresholdTool,
+
+    # Artistic & Stylization Effects
+    "SepiaEffect": SepiaEffectTool,
+    "PencilSketch": PencilSketchTool,
+    "OilPainting": OilPaintingTool,
+    "Cartoonization": CartoonizationTool,
+    "GlitchEffect": GlitchEffectTool,
+    "Pixelation": PixelationTool,
+    "Embossing": EmbossingTool,
+
+    # Color & Transformation Effects
+    "InvertColors": InvertColorsTool,
+    "SelectiveColorReplacement": SelectiveColorReplacementTool,
+    "Posterization": PosterizationTool,
+
+    # Image Sharpening & High-Frequency Filtering
+    "LaplacianSharpening": LaplacianSharpeningTool,
+    "UnsharpMasking": UnsharpMaskingTool,
+    "HighPassFilter": HighPassFilterTool,
+
+    # Image Transformation
+    "FlippingMirroring": FlippingMirroringTool,
+    "HoughTransform": HoughTransformTool,
+    "Dehazing": DehazingTool,
+
+    # Texture & Feature Analysis
+    "LBP": LBPTool,
         }
 
     def get_available_tools(self) -> List[str]:
