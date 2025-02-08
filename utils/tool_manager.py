@@ -154,74 +154,74 @@ class ToolManager:
         # Define tool class mapping
         self.tools: Dict[str, Type] = {
             # Filtering & Noise Reduction
-    "BilateralFilter": BilateralFilterTool,
-    "GaussianBlur": GaussianBlurTool,
-    "MedianBlur": MedianBlurTool,
-    "GaussianNoiseReduction": GaussianNoiseReductionTool,
-    "NonLocalMeansDenoising": NonLocalMeansDenoisingTool,
-    "WaveletTransform": WaveletTransformTool,
-    "GaborFilter": GaborFilterTool,
+            "BilateralFilter": BilateralFilterTool,
+            "GaussianBlur": GaussianBlurTool,
+            "MedianBlur": MedianBlurTool,
+            "GaussianNoiseReduction": GaussianNoiseReductionTool,
+            "NonLocalMeansDenoising": NonLocalMeansDenoisingTool,
+            "WaveletTransform": WaveletTransformTool,
+            "GaborFilter": GaborFilterTool,
 
-    # Image Enhancement & Adjustment
-    "BrightnessAdjustment": BrightnessAdjustmentTool,
-    "ContrastAdjustment": ContrastAdjustmentTool,
-    "ExposureAdjustment": ExposureAdjustmentTool,
-    "GammaCorrection": GammaCorrectionTool,
-    "HueAdjustment": HueAdjustmentTool,
-    "SaturationAdjustment": SaturationAdjustmentTool,
-    "VibranceAdjustment": VibranceAdjustmentTool,
-    "ColorBalancing": ColorBalancingTool,
-    "DarkenImage": DarkenImageTool,
+            # Image Enhancement & Adjustment
+            "BrightnessAdjustment": BrightnessAdjustmentTool,
+            "ContrastAdjustment": ContrastAdjustmentTool,
+            "ExposureAdjustment": ExposureAdjustmentTool,
+            "GammaCorrection": GammaCorrectionTool,
+            "HueAdjustment": HueAdjustmentTool,
+            "SaturationAdjustment": SaturationAdjustmentTool,
+            "VibranceAdjustment": VibranceAdjustmentTool,
+            "ColorBalancing": ColorBalancingTool,
+            "DarkenImage": DarkenImageTool,
 
-    # Edge Detection & Feature Detection
-    "CannyEdgeDetection": CannyEdgeDetectionTool,
-    "LaplacianEdgeDetection": LaplacianEdgeDetectionTool,
-    "PrewittOperator": PrewittOperatorTool,
-    "SobelFilter": SobelFilterTool,
-    "FASTCornerDetection": FASTCornerDetectionTool,
-    "ORBFeatureDetection": ORBFeatureDetectionTool,
-    "SURFFeatureDetection": SURFFeatureDetectionTool,
-    "SIFTFeatureDetection": SIFTFeatureDetectionTool,
+            # Edge Detection & Feature Detection
+            "CannyEdgeDetection": CannyEdgeDetectionTool,
+            "LaplacianEdgeDetection": LaplacianEdgeDetectionTool,
+            "PrewittOperator": PrewittOperatorTool,
+            "SobelFilter": SobelFilterTool,
+            "FASTCornerDetection": FASTCornerDetectionTool,
+            "ORBFeatureDetection": ORBFeatureDetectionTool,
+            "SURFFeatureDetection": SURFFeatureDetectionTool,
+            "SIFTFeatureDetection": SIFTFeatureDetectionTool,
 
-    # Morphological Operations
-    "Erosion": ErosionTool,
-    "Dilation": DilationTool,
-    "Opening": OpeningTool,
-    "Closing": ClosingTool,
-    "TopHatTransform": TopHatTransformTool,
-    "BlackHatTransform": BlackHatTransformTool,
+            # Morphological Operations
+            "Erosion": ErosionTool,
+            "Dilation": DilationTool,
+            "Opening": OpeningTool,
+            "Closing": ClosingTool,
+            "TopHatTransform": TopHatTransformTool,
+            "BlackHatTransform": BlackHatTransformTool,
 
-    # Thresholding & Binarization
-    "OtsuThreshold": OtsuThresholdTool,
-    "SimpleThreshold": SimpleThresholdTool,
-    "AdaptiveThreshold": AdaptiveThresholdTool,
+            # Thresholding & Binarization
+            "OtsuThreshold": OtsuThresholdTool,
+            "SimpleThreshold": SimpleThresholdTool,
+            "AdaptiveThreshold": AdaptiveThresholdTool,
 
-    # Artistic & Stylization Effects
-    "SepiaEffect": SepiaEffectTool,
-    "PencilSketch": PencilSketchTool,
-    "OilPainting": OilPaintingTool,
-    "Cartoonization": CartoonizationTool,
-    "GlitchEffect": GlitchEffectTool,
-    "Pixelation": PixelationTool,
-    "Embossing": EmbossingTool,
+            # Artistic & Stylization Effects
+            "SepiaEffect": SepiaEffectTool,
+            "PencilSketch": PencilSketchTool,
+            "OilPainting": OilPaintingTool,
+            "Cartoonization": CartoonizationTool,
+            "GlitchEffect": GlitchEffectTool,
+            "Pixelation": PixelationTool,
+            "Embossing": EmbossingTool,
 
-    # Color & Transformation Effects
-    "InvertColors": InvertColorsTool,
-    "SelectiveColorReplacement": SelectiveColorReplacementTool,
-    "Posterization": PosterizationTool,
+            # Color & Transformation Effects
+            "InvertColors": InvertColorsTool,
+            "SelectiveColorReplacement": SelectiveColorReplacementTool,
+            "Posterization": PosterizationTool,
 
-    # Image Sharpening & High-Frequency Filtering
-    "LaplacianSharpening": LaplacianSharpeningTool,
-    "UnsharpMasking": UnsharpMaskingTool,
-    "HighPassFilter": HighPassFilterTool,
+            # Image Sharpening & High-Frequency Filtering
+            "LaplacianSharpening": LaplacianSharpeningTool,
+            "UnsharpMasking": UnsharpMaskingTool,
+            "HighPassFilter": HighPassFilterTool,
 
-    # Image Transformation
-    "FlippingMirroring": FlippingMirroringTool,
-    "HoughTransform": HoughTransformTool,
-    "Dehazing": DehazingTool,
+            # Image Transformation
+            "FlippingMirroring": FlippingMirroringTool,
+            "HoughTransform": HoughTransformTool,
+            "Dehazing": DehazingTool,
 
-    # Texture & Feature Analysis
-    "LBP": LBPTool,
+            # Texture & Feature Analysis
+            "LBP": LBPTool,
         }
 
     def get_available_tools(self) -> List[str]:

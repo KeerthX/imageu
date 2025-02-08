@@ -1,3 +1,4 @@
+# tools/glitch_effect.py
 import cv2
 import numpy as np
 from .base_tool import ImageProcessingTool

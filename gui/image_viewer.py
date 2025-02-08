@@ -1,9 +1,8 @@
-# gui/image_viewer.py
 from PyQt5.QtWidgets import (
     QGraphicsView, QGraphicsScene, QGraphicsPixmapItem,
     QRubberBand, QLabel, QWidget
 )
-from PyQt5.QtGui import QPixmap, QImage, QPainter, QCursor
+from PyQt5.QtGui import QPixmap, QImage, QPainter, QCursor, QFont, QColor
 from PyQt5.QtCore import Qt, QRectF, QPointF, QSizeF, QPoint, QRect, QTimer
 import cv2
 from .dialogs import AddProcessDialog, ConfigDialog
@@ -15,33 +14,82 @@ class ImageViewer(QGraphicsView):
         self.setup_variables()
 
     def setup_ui(self):
+        # Setup scene with dark theme
         self.scene = QGraphicsScene()
+        self.scene.setBackgroundBrush(QColor("#1E1E1E"))
         self.setScene(self.scene)
+        
+        # Setup image item with improved rendering
         self.image_item = QGraphicsPixmapItem()
+        self.image_item.setShapeMode(QGraphicsPixmapItem.BoundingRectShape)
         self.scene.addItem(self.image_item)
         
-        # View settings
-        self.setRenderHint(QPainter.Antialiasing)
-        self.setRenderHint(QPainter.SmoothPixmapTransform)
+        # Enhanced view settings
+        self.setRenderHint(QPainter.Antialiasing, True)
+        self.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        self.setRenderHint(QPainter.TextAntialiasing, True)
         self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
         self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
         self.setDragMode(QGraphicsView.ScrollHandDrag)
+        
+        # Modern dark theme styling
+        self.setStyleSheet("""
+            QGraphicsView {
+                background-color: #1E1E1E;
+                border: none;
+                selection-background-color: #264F78;
+            }
+            QScrollBar:horizontal {
+                height: 12px;
+                background: #1E1E1E;
+                margin: 0px 20px 0px 20px;
+            }
+            QScrollBar:vertical {
+                width: 12px;
+                background: #1E1E1E;
+                margin: 20px 0px 20px 0px;
+            }
+            QScrollBar::handle {
+                background: #3E3E42;
+                border-radius: 6px;
+                min-height: 24px;
+                min-width: 24px;
+            }
+            QScrollBar::handle:hover {
+                background: #4E4E52;
+            }
+            QScrollBar::add-line, QScrollBar::sub-line {
+                background: none;
+                border: none;
+            }
+            QScrollBar::add-page, QScrollBar::sub-page {
+                background: none;
+            }
+        """)
 
-        # Error label
+        # Enhanced error label with modern styling
         self.error_label = QLabel(self)
+        self.error_label.setFont(QFont("Segoe UI", 10))
         self.error_label.setStyleSheet("""
             QLabel {
-                background-color: rgba(231, 76, 60, 180);
-                color: white;
-                padding: 10px;
-                border-radius: 5px;
-                font-weight: bold;
+                background-color: rgba(240, 52, 52, 0.95);
+                color: #FFFFFF;
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-weight: 500;
+                margin: 16px;
             }
         """)
         self.error_label.hide()
+
+        # Set view background
+        self.setBackgroundBrush(QColor("#1E1E1E"))
+        
+        # Enable mouse tracking for better interaction
+        self.setMouseTracking(True)
 
     def setup_variables(self):
         self.original_image = None
@@ -51,6 +99,68 @@ class ImageViewer(QGraphicsView):
         self.min_zoom = 0.1
         self.max_zoom = 10.0
         self.error_state = False
+
+    def show_error(self, message):
+        self.error_label.setText(message)
+        self.error_label.adjustSize()
+        
+        # Position error message at the bottom center
+        label_x = (self.width() - self.error_label.width()) // 2
+        label_y = self.height() - self.error_label.height() - 20
+        
+        # Add smooth fade-in animation effect
+        self.error_label.setStyleSheet("""
+            QLabel {
+                background-color: rgba(240, 52, 52, 0.95);
+                color: #FFFFFF;
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-weight: 500;
+                margin: 16px;
+                opacity: 1;
+                transition: opacity 0.3s ease-in-out;
+            }
+        """)
+        
+        self.error_label.move(label_x, label_y)
+        self.error_label.show()
+        
+        # Hide error message after delay with fade-out effect
+        QTimer.singleShot(2800, lambda: self.error_label.setStyleSheet("""
+            QLabel {
+                background-color: rgba(240, 52, 52, 0.95);
+                color: #FFFFFF;
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-weight: 500;
+                margin: 16px;
+                opacity: 0;
+                transition: opacity 0.2s ease-in-out;
+            }
+        """))
+        QTimer.singleShot(3000, self.error_label.hide)
+
+    def wheelEvent(self, event):
+        if event.angleDelta().y() > 0:
+            factor = 1.25
+            self.zoom_factor *= factor
+        else:
+            factor = 0.8
+            self.zoom_factor *= factor
+        
+        # Smooth zoom limits
+        self.zoom_factor = max(self.min_zoom, min(self.zoom_factor, self.max_zoom))
+        
+        # Apply zoom with smooth transition
+        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+        self.scale(factor, factor)
+        
+        # Update cursor based on zoom level
+        if self.zoom_factor > 1.0:
+            self.setCursor(QCursor(Qt.OpenHandCursor))
+        else:
+            self.setCursor(QCursor(Qt.ArrowCursor))
+
 
     def load_image(self, file_path):
         try:

@@ -29,7 +29,11 @@ class BrightnessAdjustmentTool(ImageProcessingTool):
         if image is None:
             raise ValueError("No image provided for processing")
         try:
-            adjusted = cv2.add(image, np.full(image.shape, self._brightness, dtype=np.float32))
+            # Convert the brightness adjustment to the same type as the image
+            adjustment = np.full(image.shape, self._brightness, dtype=np.uint8)
+            # Perform the addition
+            adjusted = cv2.add(image.astype(np.int16), adjustment.astype(np.int16))
+            # Clip and convert back to uint8
             return np.clip(adjusted, 0, 255).astype(np.uint8)
         except Exception as e:
             raise RuntimeError(f"Error adjusting brightness: {str(e)}")
