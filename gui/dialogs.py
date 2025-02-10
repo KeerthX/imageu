@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (
     QLineEdit, QMessageBox, QFrame, QGraphicsOpacityEffect
 )
 from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, Qt
-from PyQt5.QtGui import QPalette
+from PyQt5.QtGui import QPalette, QFont
 
 class BaseDialog(QDialog):
     def __init__(self, parent=None):
@@ -24,13 +24,15 @@ class BaseDialog(QDialog):
         self.frame.setObjectName("dialogFrame")
         self.frame.setStyleSheet("""
             QFrame#dialogFrame {
-                background: #2C3E50;
-                border-radius: 10px;
-                border: 1px solid #34495E;
+                background: #252526;
+                border-radius: 8px;
+                border: 1px solid #3E3E42;
             }
         """)
         
         self.frame_layout = QVBoxLayout(self.frame)
+        self.frame_layout.setContentsMargins(24, 24, 24, 24)
+        self.frame_layout.setSpacing(16)
         self.main_layout.addWidget(self.frame)
 
 class AddProcessDialog(BaseDialog):
@@ -43,7 +45,8 @@ class AddProcessDialog(BaseDialog):
     def setup_content(self):
         # Title
         title = QLabel("Add Processing Tool")
-        title.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
+        title.setFont(QFont("Segoe UI", 16, QFont.Bold))
+        title.setStyleSheet("color: #E0E0E0; margin-bottom: 8px;")
         self.frame_layout.addWidget(title)
 
         # Tool selector
@@ -51,11 +54,29 @@ class AddProcessDialog(BaseDialog):
         self.tool_selector.addItems(self.available_tools)
         self.tool_selector.setStyleSheet("""
             QComboBox {
-                padding: 8px;
-                background: #34495E;
-                color: white;
-                border: 1px solid #456789;
-                border-radius: 5px;
+                padding: 12px;
+                background: #3E3E42;
+                color: #E0E0E0;
+                border: none;
+                border-radius: 6px;
+                font-size: 13px;
+            }
+            QComboBox::drop-down {
+                border: none;
+                padding-right: 8px;
+            }
+            QComboBox::down-arrow {
+                image: none;
+                border: none;
+            }
+            QComboBox:hover {
+                background: #4E4E52;
+            }
+            QComboBox QAbstractItemView {
+                background: #2D2D30;
+                color: #E0E0E0;
+                selection-background-color: #264F78;
+                border: 1px solid #3E3E42;
             }
         """)
         self.frame_layout.addWidget(self.tool_selector)
@@ -66,26 +87,40 @@ class AddProcessDialog(BaseDialog):
         add_button = QPushButton("Add")
         add_button.setStyleSheet("""
             QPushButton {
-                padding: 10px;
-                background: #2ECC71;
+                padding: 12px;
+                background: #007ACC;
                 border: none;
-                border-radius: 5px;
-                color: white;
+                border-radius: 6px;
+                color: #E0E0E0;
+                font-size: 13px;
+                font-weight: 500;
             }
-            QPushButton:hover { background: #27AE60; }
+            QPushButton:hover {
+                background: #1C97EA;
+            }
+            QPushButton:pressed {
+                background: #005B99;
+            }
         """)
         add_button.clicked.connect(self.accept_tool)
         
         cancel_button = QPushButton("Cancel")
         cancel_button.setStyleSheet("""
             QPushButton {
-                padding: 10px;
-                background: #E74C3C;
+                padding: 12px;
+                background: #3E3E42;
                 border: none;
-                border-radius: 5px;
-                color: white;
+                border-radius: 6px;
+                color: #E0E0E0;
+                font-size: 13px;
+                font-weight: 500;
             }
-            QPushButton:hover { background: #C0392B; }
+            QPushButton:hover {
+                background: #4E4E52;
+            }
+            QPushButton:pressed {
+                background: #2E2E32;
+            }
         """)
         cancel_button.clicked.connect(self.reject)
         
@@ -107,24 +142,39 @@ class ConfigDialog(BaseDialog):
     def setup_content(self):
         # Title
         title = QLabel(f"Configure {self.tool.__class__.__name__}")
-        title.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
+        title.setFont(QFont("Segoe UI", 16, QFont.Bold))
+        title.setStyleSheet("color: #E0E0E0; margin-bottom: 8px;")
         self.frame_layout.addWidget(title)
 
         # Parameter inputs
         self.param_inputs = {}
         for param, value in self.tool.get_parameters().items():
             param_label = QLabel(param)
-            param_label.setStyleSheet("color: white;")
+            param_label.setStyleSheet("""
+                QLabel {
+                    color: #969696;
+                    font-size: 13px;
+                    font-weight: bold;
+                    margin-top: 8px;
+                }
+            """)
             self.frame_layout.addWidget(param_label)
             
             input_field = QLineEdit(str(value))
             input_field.setStyleSheet("""
                 QLineEdit {
-                    padding: 8px;
-                    background: #34495E;
-                    color: white;
-                    border: 1px solid #456789;
-                    border-radius: 5px;
+                    padding: 12px;
+                    background: #3E3E42;
+                    color: #E0E0E0;
+                    border: none;
+                    border-radius: 6px;
+                    font-size: 13px;
+                }
+                QLineEdit:focus {
+                    border: 1px solid #007ACC;
+                }
+                QLineEdit:hover {
+                    background: #4E4E52;
                 }
             """)
             self.frame_layout.addWidget(input_field)
@@ -136,26 +186,40 @@ class ConfigDialog(BaseDialog):
         save_button = QPushButton("Save")
         save_button.setStyleSheet("""
             QPushButton {
-                padding: 10px;
-                background: #2ECC71;
+                padding: 12px;
+                background: #007ACC;
                 border: none;
-                border-radius: 5px;
-                color: white;
+                border-radius: 6px;
+                color: #E0E0E0;
+                font-size: 13px;
+                font-weight: 500;
             }
-            QPushButton:hover { background: #27AE60; }
+            QPushButton:hover {
+                background: #1C97EA;
+            }
+            QPushButton:pressed {
+                background: #005B99;
+            }
         """)
         save_button.clicked.connect(self.save_config)
 
         cancel_button = QPushButton("Cancel")
         cancel_button.setStyleSheet("""
             QPushButton {
-                padding: 10px;
-                background: #E74C3C;
+                padding: 12px;
+                background: #3E3E42;
                 border: none;
-                border-radius: 5px;
-                color: white;
+                border-radius: 6px;
+                color: #E0E0E0;
+                font-size: 13px;
+                font-weight: 500;
             }
-            QPushButton:hover { background: #C0392B; }
+            QPushButton:hover {
+                background: #4E4E52;
+            }
+            QPushButton:pressed {
+                background: #2E2E32;
+            }
         """)
         cancel_button.clicked.connect(self.reject)
         

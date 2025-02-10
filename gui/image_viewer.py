@@ -14,12 +14,12 @@ class ImageViewer(QGraphicsView):
         self.setup_variables()
 
     def setup_ui(self):
-        # Setup scene with dark theme
+        # Scene setup with modern dark theme
         self.scene = QGraphicsScene()
-        self.scene.setBackgroundBrush(QColor("#1E1E1E"))
+        self.scene.setBackgroundBrush(QColor("#1A1A1A"))
         self.setScene(self.scene)
         
-        # Setup image item with improved rendering
+        # Image item setup
         self.image_item = QGraphicsPixmapItem()
         self.image_item.setShapeMode(QGraphicsPixmapItem.BoundingRectShape)
         self.scene.addItem(self.image_item)
@@ -35,31 +35,31 @@ class ImageViewer(QGraphicsView):
         self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
         self.setDragMode(QGraphicsView.ScrollHandDrag)
         
-        # Modern dark theme styling
+        # Modern UI styling
         self.setStyleSheet("""
             QGraphicsView {
-                background-color: #1E1E1E;
+                background-color: #1A1A1A;
                 border: none;
-                selection-background-color: #264F78;
+                selection-background-color: #2D5F9E;
             }
             QScrollBar:horizontal {
-                height: 12px;
-                background: #1E1E1E;
-                margin: 0px 20px 0px 20px;
+                height: 10px;
+                background: #1A1A1A;
+                margin: 0px 15px 0px 15px;
             }
             QScrollBar:vertical {
-                width: 12px;
-                background: #1E1E1E;
-                margin: 20px 0px 20px 0px;
+                width: 10px;
+                background: #1A1A1A;
+                margin: 15px 0px 15px 0px;
             }
             QScrollBar::handle {
-                background: #3E3E42;
-                border-radius: 6px;
-                min-height: 24px;
-                min-width: 24px;
+                background: #333333;
+                border-radius: 5px;
+                min-height: 20px;
+                min-width: 20px;
             }
             QScrollBar::handle:hover {
-                background: #4E4E52;
+                background: #444444;
             }
             QScrollBar::add-line, QScrollBar::sub-line {
                 background: none;
@@ -70,26 +70,61 @@ class ImageViewer(QGraphicsView):
             }
         """)
 
-        # Enhanced error label with modern styling
+        # Modern error label
         self.error_label = QLabel(self)
-        self.error_label.setFont(QFont("Segoe UI", 10))
+        self.error_label.setFont(QFont("Inter", 11))
         self.error_label.setStyleSheet("""
             QLabel {
-                background-color: rgba(240, 52, 52, 0.95);
+                background-color: rgba(220, 53, 69, 0.95);
                 color: #FFFFFF;
-                padding: 12px 20px;
+                padding: 15px 25px;
                 border-radius: 8px;
                 font-weight: 500;
-                margin: 16px;
+                margin: 20px;
             }
         """)
         self.error_label.hide()
 
         # Set view background
-        self.setBackgroundBrush(QColor("#1E1E1E"))
-        
-        # Enable mouse tracking for better interaction
+        self.setBackgroundBrush(QColor("#1A1A1A"))
         self.setMouseTracking(True)
+
+    def show_error(self, message):
+        self.error_label.setText(message)
+        self.error_label.adjustSize()
+        
+        label_x = (self.width() - self.error_label.width()) // 2
+        label_y = self.height() - self.error_label.height() - 25
+        
+        self.error_label.setStyleSheet("""
+            QLabel {
+                background-color: rgba(220, 53, 69, 0.95);
+                color: #FFFFFF;
+                padding: 15px 25px;
+                border-radius: 8px;
+                font-weight: 500;
+                margin: 20px;
+                opacity: 1;
+                transition: opacity 0.3s ease-in-out;
+            }
+        """)
+        
+        self.error_label.move(label_x, label_y)
+        self.error_label.show()
+        
+        QTimer.singleShot(2800, lambda: self.error_label.setStyleSheet("""
+            QLabel {
+                background-color: rgba(220, 53, 69, 0.95);
+                color: #FFFFFF;
+                padding: 15px 25px;
+                border-radius: 8px;
+                font-weight: 500;
+                margin: 20px;
+                opacity: 0;
+                transition: opacity 0.2s ease-in-out;
+            }
+        """))
+        QTimer.singleShot(3000, self.error_label.hide)
 
     def setup_variables(self):
         self.original_image = None
