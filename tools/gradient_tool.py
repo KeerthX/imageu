@@ -118,3 +118,8 @@ class GradientTool(ImageProcessingTool):
         self._gradient_type, self._kernel_size, self._direction = \
             self._validate_parameters(current_type, current_size, current_dir)
 
+    def get_valid_options(self):
+        return {
+            "gradient_type": ['sobel', 'scharr', 'laplacian'],
+            "direction": ['x', 'y', 'both']
+        }

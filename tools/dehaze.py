@@ -10,7 +10,6 @@ class DehazingTool(ImageProcessingTool):
         self._attenuation_factor = 0.1  # Attenuation factor
         self._max_filter_size = 81  # Maximum filter size for dark channel prior
         self._omega = 0.75  # Global atmospheric light estimation parameter
-        self._algorithm = 'dark_channel'  # Dehazing algorithm type
 
     def _validate_transmission_weight(self, weight):
         """Validate transmission weight parameter."""
@@ -52,13 +51,6 @@ class DehazingTool(ImageProcessingTool):
         except (ValueError, TypeError) as e:
             raise ValueError(f"Invalid omega value: {str(e)}")
 
-    def _validate_algorithm(self, algorithm):
-        """Validate dehazing algorithm."""
-        valid_algorithms = ['dark_channel', 'guided_filter']
-        if algorithm not in valid_algorithms:
-            raise ValueError(f"Algorithm must be one of {valid_algorithms}")
-        return algorithm
-
     @property
     def transmission_weight(self):
         return self._transmission_weight
@@ -91,17 +83,8 @@ class DehazingTool(ImageProcessingTool):
     def omega(self, value):
         self._omega = self._validate_omega(value)
 
-    @property
-    def algorithm(self):
-        return self._algorithm
-
-    @algorithm.setter
-    def algorithm(self, value):
-        self._algorithm = self._validate_algorithm(value)
-
     def _dark_channel_prior(self, image):
         """Compute dark channel prior."""
-        # Minimum filter in RGB channels
         dark_channel = np.min(image, axis=2)
         dark_channel = cv2.erode(dark_channel, np.ones((self._max_filter_size, self._max_filter_size)))
         return dark_channel
@@ -111,14 +94,13 @@ class DehazingTool(ImageProcessingTool):
         flat_dark = dark_channel.ravel()
         flat_image = image.reshape(-1, 3)
         
-        # Find top pixels
         top_dark_indices = np.argsort(flat_dark)[-int(len(flat_dark) * self._omega):]
         atmospheric_light = np.mean(flat_image[top_dark_indices], axis=0)
         
         return atmospheric_light
 
     def apply(self, image):
-        """Apply dehazing effect."""
+        """Apply dehazing effect using dark channel prior method."""
         if image is None:
             raise ValueError("No image provided for processing")
         
@@ -135,16 +117,6 @@ class DehazingTool(ImageProcessingTool):
             # Compute transmission map
             normalized_img = img / atmospheric_light
             transmission = 1 - self._transmission_weight * np.min(normalized_img, axis=2)
-
-            # Guided filter refinement (optional)
-            if self._algorithm == 'guided_filter':
-                # Simple guided filtering to refine transmission map
-                transmission = cv2.ximgproc.guidedFilter(
-                    img.astype(np.uint8), 
-                    transmission.astype(np.float32), 
-                    15, 
-                    self._attenuation_factor
-                )
 
             # Recover scene radiance
             recovered = np.zeros_like(img)
@@ -165,8 +137,7 @@ class DehazingTool(ImageProcessingTool):
             "transmission_weight": self._transmission_weight,
             "attenuation_factor": self._attenuation_factor,
             "max_filter_size": self._max_filter_size,
-            "omega": self._omega,
-            "algorithm": self._algorithm
+            "omega": self._omega
         }
 
     def update_parameters(self, params):
@@ -182,5 +153,3 @@ class DehazingTool(ImageProcessingTool):
             self.max_filter_size = params["max_filter_size"]
         if "omega" in params:
             self.omega = params["omega"]
-        if "algorithm" in params:
-            self.algorithm = params["algorithm"]

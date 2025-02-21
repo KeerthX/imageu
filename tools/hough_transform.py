@@ -132,3 +132,9 @@ class HoughTransformTool(ImageProcessingTool):
                 setattr(self, f"_{key}", value)
         
         self._validate_parameters()
+    
+    def get_valid_options(self):
+        """Return valid options for parameters that require a drop-down menu."""
+        return {
+            "transform_type": ['lines', 'circles']
+        }

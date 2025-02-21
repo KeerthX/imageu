@@ -1,4 +1,3 @@
-# tools/wavelet_transform.py
 import cv2
 import numpy as np
 import pywt
@@ -15,8 +14,9 @@ class WaveletTransformTool(ImageProcessingTool):
         try:
             if self._level <= 0:
                 raise ValueError("Decomposition level must be positive")
-            if self._wavelet not in pywt.wavelist():
-                raise ValueError(f"Invalid wavelet type. Must be one of: {', '.join(pywt.wavelist())}")
+            discrete_wavelets = pywt.wavelist(kind='discrete')
+            if self._wavelet not in discrete_wavelets:
+                raise ValueError(f"Invalid wavelet type. Must be one of: {', '.join(discrete_wavelets)}")
             if self._mode not in ['zero', 'constant', 'symmetric', 'periodic', 'smooth', 'periodization']:
                 raise ValueError("Invalid mode")
         except (ValueError, TypeError) as e:
@@ -60,3 +60,11 @@ class WaveletTransformTool(ImageProcessingTool):
             self._mode = str(params["mode"])
         
         self._validate_parameters()
+
+    def get_valid_options(self):
+        """Return valid options for parameters that require a drop-down menu."""
+        discrete_wavelets = pywt.wavelist(kind='discrete')
+        return {
+            "wavelet": discrete_wavelets,
+            "mode": ['zero', 'constant', 'symmetric', 'periodic', 'smooth', 'periodization']
+        }

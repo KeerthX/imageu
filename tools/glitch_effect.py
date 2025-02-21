@@ -196,3 +196,8 @@ class GlitchEffectTool(ImageProcessingTool):
             self.glitch_type = params["glitch_type"]
         if "block_size" in params:
             self.block_size = params["block_size"]
+    def get_valid_options(self):
+        """Return valid options for parameters that require a drop-down menu."""
+        return {
+            "glitch_type": ['random', 'block', 'channel', 'slice']
+        }

@@ -69,3 +69,9 @@ class PrewittOperatorTool(ImageProcessingTool):
         if not isinstance(params, dict):
             raise ValueError("Parameters must be provided as a dictionary")
         self.parameters = params
+
+    def get_valid_options(self):
+        """Return valid options for parameters that require a drop-down menu."""
+        return {
+            "direction": ['x', 'y', 'both']
+        }

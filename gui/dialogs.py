@@ -1,10 +1,9 @@
-# gui/dialogs.py
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QComboBox, QPushButton, QLabel, 
-    QLineEdit, QMessageBox, QFrame, QGraphicsOpacityEffect
+    QLineEdit, QMessageBox, QFrame
 )
-from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, Qt
-from PyQt5.QtGui import QPalette, QFont
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
 
 class BaseDialog(QDialog):
     def __init__(self, parent=None):
@@ -148,6 +147,9 @@ class ConfigDialog(BaseDialog):
 
         # Parameter inputs
         self.param_inputs = {}
+        has_valid_options = hasattr(self.tool, 'get_valid_options') and callable(getattr(self.tool, 'get_valid_options', None))
+        valid_options = self.tool.get_valid_options() if has_valid_options else {}
+
         for param, value in self.tool.get_parameters().items():
             param_label = QLabel(param)
             param_label.setStyleSheet("""
@@ -160,9 +162,15 @@ class ConfigDialog(BaseDialog):
             """)
             self.frame_layout.addWidget(param_label)
             
-            input_field = QLineEdit(str(value))
+            if has_valid_options and param in valid_options:
+                input_field = QComboBox()
+                input_field.addItems(valid_options[param])
+                input_field.setCurrentText(str(value))
+            else:
+                input_field = QLineEdit(str(value))
+            
             input_field.setStyleSheet("""
-                QLineEdit {
+                QLineEdit, QComboBox {
                     padding: 12px;
                     background: #3E3E42;
                     color: #E0E0E0;
@@ -170,10 +178,10 @@ class ConfigDialog(BaseDialog):
                     border-radius: 6px;
                     font-size: 13px;
                 }
-                QLineEdit:focus {
+                QLineEdit:focus, QComboBox:focus {
                     border: 1px solid #007ACC;
                 }
-                QLineEdit:hover {
+                QLineEdit:hover, QComboBox:hover {
                     background: #4E4E52;
                 }
             """)
@@ -231,11 +239,14 @@ class ConfigDialog(BaseDialog):
         try:
             new_params = {}
             for param, input_field in self.param_inputs.items():
-                try:
-                    new_value = eval(input_field.text().strip())
-                    new_params[param] = new_value
-                except Exception as e:
-                    raise ValueError(f"Invalid value for {param}: {str(e)}")
+                if isinstance(input_field, QLineEdit):
+                    try:
+                        new_value = eval(input_field.text().strip())
+                        new_params[param] = new_value
+                    except Exception as e:
+                        raise ValueError(f"Invalid value for {param}: {str(e)}")
+                elif isinstance(input_field, QComboBox):
+                    new_params[param] = input_field.currentText()
 
             # Test parameters on a copy of the tool
             test_tool = self.tool.__class__()

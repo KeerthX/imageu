@@ -54,6 +54,7 @@ from tools.fast_corner_detection import FASTCornerDetectionTool
 from tools.emboss import EmbossingTool
 from tools.dehaze import DehazingTool
 from tools.cartoonize import CartoonizationTool
+from tools.gradient_tool import GradientTool
 
 class ToolCategory(str, Enum):
     ADJUSTMENT = "Adjustment"
@@ -149,6 +150,7 @@ class ToolManager:
 
             # Texture Tools 
             "LBP": ToolCategory.TEXTURE,
+            "Gradient": ToolCategory.TEXTURE,
         }
 
         # Define tool class mapping
@@ -222,6 +224,7 @@ class ToolManager:
 
             # Texture & Feature Analysis
             "LBP": LBPTool,
+            "Gradient": GradientTool,
         }
 
     def get_available_tools(self) -> List[str]:

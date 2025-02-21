@@ -1,4 +1,3 @@
-# tools/lbp.py
 import cv2
 import numpy as np
 from .base_tool import ImageProcessingTool
@@ -24,18 +23,22 @@ class LBPTool(ImageProcessingTool):
     def _calculate_lbp(self, image, radius, n_points):
         height, width = image.shape
         lbp = np.zeros((height, width), dtype=np.uint8)
-        for h in range(radius, height-radius):
-            for w in range(radius, width-radius):
+        
+        # Precompute the angles and coordinates for the neighbors
+        angles = np.linspace(0, 2 * np.pi, n_points, endpoint=False)
+        x_offsets = radius * np.cos(angles)
+        y_offsets = -radius * np.sin(angles)
+        
+        for h in range(radius, height - radius):
+            for w in range(radius, width - radius):
                 center = image[h, w]
-                binary = ""
+                binary = 0
                 for p in range(n_points):
-                    angle = 2 * np.pi * p / n_points
-                    x = w + radius * np.cos(angle)
-                    y = h - radius * np.sin(angle)
-                    x1 = int(np.floor(x))
-                    y1 = int(np.floor(y))
-                    binary += "1" if image[y1, x1] >= center else "0"
-                lbp[h, w] = int(binary, 2)
+                    x = int(w + x_offsets[p])
+                    y = int(h + y_offsets[p])
+                    binary |= (image[y, x] >= center) << p
+                lbp[h, w] = binary
+        
         return lbp
 
     def apply(self, image):
@@ -68,3 +71,9 @@ class LBPTool(ImageProcessingTool):
             self._method = str(params["method"])
         
         self._validate_parameters()
+
+    def get_valid_options(self):
+        """Return valid options for parameters that require a drop-down menu."""
+        return {
+            "method": ['default', 'uniform', 'ror', 'nri_uniform']
+        }

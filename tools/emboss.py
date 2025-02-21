@@ -136,6 +136,7 @@ class EmbossingTool(ImageProcessingTool):
             "emboss_angle": self._emboss_angle,
             "emboss_depth": self._emboss_depth,
             "background_gray": self._background_gray,
+            "emboss_type": self._emboss_type
         }
 
     def update_parameters(self, params):
@@ -149,3 +150,11 @@ class EmbossingTool(ImageProcessingTool):
             self.emboss_depth = params["emboss_depth"]
         if "background_gray" in params:
             self.background_gray = params["background_gray"]
+        if "emboss_type" in params:
+            self.emboss_type = params["emboss_type"]
+
+    def get_valid_options(self):
+        """Return valid options for parameters that require a drop-down menu."""
+        return {
+            "emboss_type": ['standard', 'enhanced']
+        }
