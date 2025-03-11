@@ -281,12 +281,14 @@ class MainWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to save image: {str(e)}")
 
+    # In main_window.py, modify the add_processing method
     def add_processing(self):
         try:
             if self.image_viewer.original_image is None:
                 raise ValueError("Please load an image first")
 
-            dialog = AddProcessDialog(self.tool_manager.get_available_tools(), self)
+            # Change this line to pass the tool_manager as well
+            dialog = AddProcessDialog(self.tool_manager.get_available_tools(), self.tool_manager, self)
             if dialog.exec_():
                 process_name = dialog.selected_process
                 if process_name:

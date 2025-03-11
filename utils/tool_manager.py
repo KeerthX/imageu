@@ -257,3 +257,10 @@ class ToolManager:
     def get_all_categories(self) -> List[ToolCategory]:
         """Returns a list of all available tool categories."""
         return list(set(self.tool_categories.values()))
+
+    # In tool_manager.py, add this method to the ToolManager class
+    def get_tool_class_name(self, display_name: str) -> str:
+        """Gets the class name for a tool based on its display name."""
+        if display_name not in self.tools:
+            raise ValueError(f"Unknown tool: {display_name}")
+        return self.tools[display_name].__name__

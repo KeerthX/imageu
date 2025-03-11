@@ -34,9 +34,12 @@ class BaseDialog(QDialog):
         self.frame_layout.setSpacing(16)
         self.main_layout.addWidget(self.frame)
 
+# In dialogs.py, modify the AddProcessDialog class
 class AddProcessDialog(BaseDialog):
-    def __init__(self, available_tools, parent=None):
+    def __init__(self, available_tools, tool_manager, parent=None):  # Updated parameter list
         self.available_tools = available_tools
+        self.tool_manager = tool_manager  # Store the tool manager
+        self.filtered_tools = available_tools.copy()  # Add this line
         super().__init__(parent)
         self.selected_process = None
         self.setup_content()
@@ -47,10 +50,56 @@ class AddProcessDialog(BaseDialog):
         title.setFont(QFont("Segoe UI", 16, QFont.Bold))
         title.setStyleSheet("color: #E0E0E0; margin-bottom: 8px;")
         self.frame_layout.addWidget(title)
+        
+        # Add this section for Category filter
+        category_label = QLabel("Filter by Category")
+        category_label.setStyleSheet("""
+            QLabel {
+                color: #969696;
+                font-size: 13px;
+                font-weight: bold;
+                margin-top: 8px;
+            }
+        """)
+        self.frame_layout.addWidget(category_label)
+        
+        # Get all categories from tool manager
+        self.category_selector = QComboBox()
+        categories = ["All Categories"] + [category.value for category in self.tool_manager.get_all_categories()]
+        self.category_selector.addItems(categories)
+        self.category_selector.setStyleSheet("""
+            QComboBox {
+                padding: 12px;
+                background: #3E3E42;
+                color: #E0E0E0;
+                border: none;
+                border-radius: 6px;
+                font-size: 13px;
+            }
+            QComboBox::drop-down {
+                border: none;
+                padding-right: 8px;
+            }
+            QComboBox::down-arrow {
+                image: none;
+                border: none;
+            }
+            QComboBox:hover {
+                background: #4E4E52;
+            }
+            QComboBox QAbstractItemView {
+                background: #2D2D30;
+                color: #E0E0E0;
+                selection-background-color: #264F78;
+                border: 1px solid #3E3E42;
+            }
+        """)
+        self.category_selector.currentIndexChanged.connect(self.filter_tools)
+        self.frame_layout.addWidget(self.category_selector)
 
-        # Tool selector
+        # Tool selector (existing code)
         self.tool_selector = QComboBox()
-        self.tool_selector.addItems(self.available_tools)
+        self.tool_selector.addItems(self.filtered_tools)  # Use filtered_tools instead of available_tools
         self.tool_selector.setStyleSheet("""
             QComboBox {
                 padding: 12px;
@@ -80,7 +129,7 @@ class AddProcessDialog(BaseDialog):
         """)
         self.frame_layout.addWidget(self.tool_selector)
 
-        # Buttons
+        # Rest of your existing code for buttons
         button_layout = QVBoxLayout()
         
         add_button = QPushButton("Add")
@@ -126,6 +175,34 @@ class AddProcessDialog(BaseDialog):
         button_layout.addWidget(add_button)
         button_layout.addWidget(cancel_button)
         self.frame_layout.addLayout(button_layout)
+
+    # Add this new method for filtering tools
+    def filter_tools(self):
+        selected_category = self.category_selector.currentText()
+        
+        if selected_category == "All Categories":
+            self.filtered_tools = self.available_tools.copy()
+        else:
+            # Filter tools based on the selected category
+            self.filtered_tools = []
+            for tool_name in self.available_tools:
+                # Get the class name by removing spaces
+                class_name = "".join(tool_name.split())
+                
+                # Try to find the tool in the tool categories dictionary
+                # We need to check if the class name exists or if a similar name exists
+                matching_tool = None
+                for key in self.tool_manager.tool_categories:
+                    if key.lower() in class_name.lower() or class_name.lower() in key.lower():
+                        matching_tool = key
+                        break
+                
+                if matching_tool and self.tool_manager.tool_categories[matching_tool].value == selected_category:
+                    self.filtered_tools.append(tool_name)
+        
+        # Update the tool selector
+        self.tool_selector.clear()
+        self.tool_selector.addItems(self.filtered_tools)
 
     def accept_tool(self):
         self.selected_process = self.tool_selector.currentText()

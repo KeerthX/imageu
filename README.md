@@ -1,4 +1,4 @@
-# ImageU V0.7 (Stable)
+# ImageU V0.8 (Stable)
 
 ImageU is a simple yet powerful image processing application that provides an intuitive UI for applying various image enhancement and transformation techniques. It features real-time image processing, a modern full-screen UI, and dynamic parameter adjustments.
 
