@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QFont
-from .image_viewer import ImageViewer 
+from .image_viewer import ImageViewer
 from .dialogs import AddProcessDialog, ConfigDialog
 from utils.tool_manager import ToolManager
 
@@ -16,30 +16,31 @@ class MainWindow(QMainWindow):
         self.setup_connections()
 
     def init_ui(self):
-        self.setWindowTitle("Image Processing Tool")
+        self.setWindowTitle("ImageU V0.8")
         self.setStyleSheet("""
             QMainWindow {
-                background: #1E1E1E;
+                background: #121212;
+                font-family: 'Segoe UI', sans-serif;
             }
             QLabel {
                 color: #E0E0E0;
             }
             QMessageBox {
-                background-color: #2D2D2D;
+                background-color: #1E1E1E;
                 color: #E0E0E0;
             }
             QMessageBox QLabel {
                 color: #E0E0E0;
             }
             QMessageBox QPushButton {
-                background-color: #3D3D3D;
+                background-color: #2D2D2D;
                 color: #E0E0E0;
-                border: 1px solid #555555;
+                border: 1px solid #404040;
                 padding: 5px 15px;
-                border-radius: 3px;
+                border-radius: 6px;
             }
             QMessageBox QPushButton:hover {
-                background-color: #4D4D4D;
+                background-color: #3D3D3D;
             }
         """)
 
@@ -69,19 +70,19 @@ class MainWindow(QMainWindow):
                 max-width: 350px;
             }
         """)
-        
+
         sidebar_layout = QVBoxLayout(sidebar)
         sidebar_layout.setContentsMargins(16, 24, 16, 24)
         sidebar_layout.setSpacing(12)
 
         # Title
-        title = QLabel("ImageU V0.6")
+        title = QLabel("ImageU V0.8")
         title.setFont(QFont("Segoe UI", 24, QFont.Bold))
         title.setStyleSheet("""
             QLabel {
                 color: #E0E0E0;
                 margin-bottom: 10px;
-                font-size: 45px;
+                font-size: 24px;
             }
         """)
         sidebar_layout.addWidget(title)
@@ -167,15 +168,15 @@ class MainWindow(QMainWindow):
         # Process movement buttons
         move_layout = QHBoxLayout()
         move_layout.setSpacing(8)
-        
+
         self.move_up_button = self.create_button("↑ Move Up", "arrow-up.png")
         self.move_up_button.clicked.connect(self.move_process_up)
         move_layout.addWidget(self.move_up_button)
-        
+
         self.move_down_button = self.create_button("↓ Move Down", "arrow-down.png")
         self.move_down_button.clicked.connect(self.move_process_down)
         move_layout.addWidget(self.move_down_button)
-        
+
         layout.addLayout(move_layout)
 
     def create_processing_list(self, layout):
@@ -231,19 +232,6 @@ class MainWindow(QMainWindow):
 
         main_layout.addWidget(content)
 
-    def setup_main_content(self, main_layout):
-        # Main content container
-        content = QFrame()
-        content.setStyleSheet("background: #1A242F;")
-        content_layout = QVBoxLayout(content)
-        content_layout.setContentsMargins(20, 20, 20, 20)
-
-        # Image viewer
-        self.image_viewer = ImageViewer()
-        content_layout.addWidget(self.image_viewer)
-
-        main_layout.addWidget(content)
-
     def setup_connections(self):
         self.process_list.itemSelectionChanged.connect(self.update_button_states)
         self.update_button_states()
@@ -281,13 +269,11 @@ class MainWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to save image: {str(e)}")
 
-    # In main_window.py, modify the add_processing method
     def add_processing(self):
         try:
             if self.image_viewer.original_image is None:
                 raise ValueError("Please load an image first")
 
-            # Change this line to pass the tool_manager as well
             dialog = AddProcessDialog(self.tool_manager.get_available_tools(), self.tool_manager, self)
             if dialog.exec_():
                 process_name = dialog.selected_process
@@ -316,7 +302,6 @@ class MainWindow(QMainWindow):
         if current_row > 0:
             try:
                 if self.image_viewer.move_processing(current_row, current_row - 1):
-                    # Swap items in the list widget
                     item = self.process_list.takeItem(current_row)
                     self.process_list.insertItem(current_row - 1, item)
                     self.process_list.setCurrentRow(current_row - 1)
@@ -329,7 +314,6 @@ class MainWindow(QMainWindow):
         if current_row < self.process_list.count() - 1:
             try:
                 if self.image_viewer.move_processing(current_row, current_row + 1):
-                    # Swap items in the list widget
                     item = self.process_list.takeItem(current_row)
                     self.process_list.insertItem(current_row + 1, item)
                     self.process_list.setCurrentRow(current_row + 1)
