@@ -8,10 +8,12 @@ from PyQt5.QtGui import QIcon, QFont
 from .image_viewer import ImageViewer
 from .dialogs import AddProcessDialog, ConfigDialog
 from utils.tool_manager import ToolManager
+import os
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.current_image_path = None
         self.init_ui()
         self.setup_connections()
 
@@ -106,6 +108,14 @@ class MainWindow(QMainWindow):
         # Action buttons
         self.create_action_buttons(sidebar_layout)
 
+        # Format section
+        format_label = QLabel("FORMAT CONVERSION")
+        format_label.setStyleSheet(section_label_style)
+        sidebar_layout.addWidget(format_label)
+
+        # Format controls
+        self.create_format_controls(sidebar_layout)
+
         # Processing section
         process_label = QLabel("PROCESSING STACK")
         process_label.setStyleSheet(section_label_style)
@@ -179,6 +189,30 @@ class MainWindow(QMainWindow):
 
         layout.addLayout(move_layout)
 
+    def create_format_controls(self, layout):
+        """Create format detection and conversion controls."""
+        # Current format label
+        self.format_label = QLabel("Current Format: None")
+        self.format_label.setStyleSheet("""
+            QLabel {
+                color: #B0B0B0;
+                font-size: 12px;
+                font-weight: normal;
+                margin: 4px 0;
+                padding: 8px 12px;
+                background: #1E1E1E;
+                border: 1px solid #3E3E42;
+                border-radius: 6px;
+            }
+        """)
+        layout.addWidget(self.format_label)
+        
+        # Convert button
+        self.convert_button = self.create_button("Convert Format", "convert.png")
+        self.convert_button.clicked.connect(self.convert_format)
+        self.convert_button.setEnabled(False)  # Initially disabled
+        layout.addWidget(self.convert_button)
+
     def create_processing_list(self, layout):
         self.process_list = QListWidget()
         self.process_list.setStyleSheet("""
@@ -239,9 +273,61 @@ class MainWindow(QMainWindow):
     def update_button_states(self):
         has_selection = bool(self.process_list.selectedItems())
         current_row = self.process_list.currentRow()
+        has_image = self.image_viewer.processed_image is not None
+        
         self.remove_button.setEnabled(has_selection)
         self.move_up_button.setEnabled(has_selection and current_row > 0)
         self.move_down_button.setEnabled(has_selection and current_row < self.process_list.count() - 1)
+        self.convert_button.setEnabled(has_image)
+
+    def detect_image_format(self):
+        """Detect and display the current image format."""
+        if hasattr(self, 'current_image_path') and self.current_image_path:
+            try:
+                from tools.format_conversion_tool import FormatConversionTool
+                current_format = FormatConversionTool.detect_format(self.current_image_path)
+                self.format_label.setText(f"Current Format: {current_format}")
+            except ImportError:
+                # Fallback to basic format detection
+                _, ext = os.path.splitext(self.current_image_path)
+                format_name = ext.upper().replace('.', '') if ext else 'Unknown'
+                self.format_label.setText(f"Current Format: {format_name}")
+
+    def convert_format(self):
+        """Handle format conversion."""
+        try:
+            if self.image_viewer.processed_image is None:
+                raise ValueError("No image loaded")
+            
+            # Create format conversion tool
+            tool = self.tool_manager.get_tool("Format Conversion")
+            
+            # Show format selection dialog
+            dialog = ConfigDialog(tool, self)
+            if dialog.exec_():
+                # Get selected format
+                new_format = tool.get_parameters()['output_format']
+                
+                # Show save dialog with selected format
+                extension = tool.supported_formats[new_format]
+                file_path, _ = QFileDialog.getSaveFileName(
+                    self,
+                    "Save Converted Image",
+                    "",
+                    f"{new_format} Files (*{extension})"
+                )
+                
+                if file_path:
+                    # Ensure correct extension
+                    base, _ = os.path.splitext(file_path)
+                    file_path = base + extension
+                    
+                    # Save in new format
+                    if self.image_viewer.save_image(file_path):
+                        self.statusBar().showMessage(f"Image converted and saved as {new_format}", 3000)
+                    
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
 
     def upload_image(self):
         try:
@@ -250,7 +336,10 @@ class MainWindow(QMainWindow):
                 "Images (*.png *.jpg *.jpeg *.bmp *.tif *.tiff)"
             )
             if file_path and self.image_viewer.load_image(file_path):
+                self.current_image_path = file_path  # Store the path
                 self.process_list.clear()
+                self.detect_image_format()  # Update format display
+                self.update_button_states()  # Update button states
                 self.statusBar().showMessage("Image loaded successfully", 3000)
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to load image: {str(e)}")

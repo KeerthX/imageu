@@ -1,19 +1,20 @@
-# ImageU V0.8 (Stable)
+# ImageU V1 (Stable)
 
-ImageU is a simple yet powerful image processing application that provides an intuitive UI for applying various image enhancement and transformation techniques. It features real-time image processing, a modern full-screen UI, and dynamic parameter adjustments.
+ImageU is a powerful and user-friendly image processing application designed to provide an intuitive interface for applying various image enhancement and transformation techniques. With real-time processing capabilities, a modern full-screen UI, and dynamic parameter adjustments, ImageU makes image editing accessible and efficient.
 
----
+
 
 ## 🚀 Features
 
-- **Modern Full-Screen UI:** A sleek, responsive design with smooth animations.
-- **Advanced Image Viewer:** Supports zoom, pan, reset, and fit-to-screen functionalities.
-- **Processing Tools:** Apply enhancements like brightness, contrast, filters, rotation, and much more.
-- **Dynamic Parameter Adjustment:** Modify tool settings in real-time using dialogs.
-- **Processing Queue:** Add, remove, and reorder processing steps with an intuitive draggable list.
-- **Dark Mode Styling:** Aesthetic and user-friendly interface with custom themes.
+- **Modern Full-Screen UI**: Enjoy a sleek, responsive design with smooth animations for an enhanced user experience.
+- **Advanced Image Viewer**: Supports essential functionalities like zoom, pan, reset, and fit-to-screen.
+- **Comprehensive Processing Tools**: Apply a wide range of enhancements such as brightness, contrast, filters, rotation, and more.
+- **Format Conversion Tool**: Convert through multiple formats. 
+- **Real-Time Parameter Adjustment**: Modify tool settings in real-time using interactive dialogs.
+- **Processing Queue**: Add, remove, and reorder processing steps with an intuitive draggable list.
+- **Dark Mode Styling**: Aesthetic and user-friendly interface with custom themes.
 
----
+
 
 ## 🛠 Installation
 
@@ -35,7 +36,7 @@ venv\Scripts\activate      # On Windows
 pip install -r requirements.txt
 ```
 
----
+
 
 ## 🎨 Usage
 
@@ -45,11 +46,11 @@ python main.py
 ```
 
 ### UI Overview
-- **Left Sidebar:** Upload, Save, and Processing Queue.
-- **Center Panel:** Displays the image with interactive controls.
-- **Right Panel:** Parameter adjustment dialogs for processing tools.
+- **Left Sidebar**: Upload, save, and manage the processing queue.
+- **Center Panel**: Displays the image with interactive controls.
+- **Right Panel**: Adjust parameters for processing tools in real-time.
 
----
+
 
 ## 📦 Project Structure
 ```
@@ -87,7 +88,7 @@ imageu/
 │── requirements.txt        # Dependencies
 ```
 
----
+
 
 ## 🏗 Building an Executable
 To generate a standalone executable using PyInstaller:
@@ -96,7 +97,7 @@ pyinstaller --onefile --windowed main.py
 ```
 The output executable will be located in the `dist/` folder.
 
----
+
 
 ## 🌟 Contributors
 
@@ -106,25 +107,26 @@ Meet our awesome contributors! This section is automatically updated with contri
 
 Want to contribute? Fork this repository and submit a pull request!
 
----
+
 
 ## 🤝 Contributing
 
 Contributions are welcome! If you have ideas for new features or improvements, feel free to fork the repository, submit issues, or create pull requests.
 
----
+
 
 ## 📜 License
 
 This project is licensed under the MIT License.
 
----
+
 
 ## 🏆 Credits
 
 Developed by **Prakeerth Jisha Madhu Prakash**.
 
----
+
 
 ### 🔗 Stay Connected
 Follow the project on GitHub: [ImageU](https://github.com/KeerthX/imageu)
+

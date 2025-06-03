@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
+from tools.format_conversion_tool import FormatConversionTool
 
 class BaseDialog(QDialog):
     def __init__(self, parent=None):
@@ -34,12 +35,11 @@ class BaseDialog(QDialog):
         self.frame_layout.setSpacing(16)
         self.main_layout.addWidget(self.frame)
 
-# In dialogs.py, modify the AddProcessDialog class
 class AddProcessDialog(BaseDialog):
-    def __init__(self, available_tools, tool_manager, parent=None):  # Updated parameter list
+    def __init__(self, available_tools, tool_manager, parent=None):
         self.available_tools = available_tools
-        self.tool_manager = tool_manager  # Store the tool manager
-        self.filtered_tools = available_tools.copy()  # Add this line
+        self.tool_manager = tool_manager
+        self.filtered_tools = available_tools.copy()
         super().__init__(parent)
         self.selected_process = None
         self.setup_content()
@@ -51,7 +51,7 @@ class AddProcessDialog(BaseDialog):
         title.setStyleSheet("color: #E0E0E0; margin-bottom: 8px;")
         self.frame_layout.addWidget(title)
         
-        # Add this section for Category filter
+        # Category filter section
         category_label = QLabel("Filter by Category")
         category_label.setStyleSheet("""
             QLabel {
@@ -97,9 +97,20 @@ class AddProcessDialog(BaseDialog):
         self.category_selector.currentIndexChanged.connect(self.filter_tools)
         self.frame_layout.addWidget(self.category_selector)
 
-        # Tool selector (existing code)
+        # Tool selector
+        tool_label = QLabel("Select Tool")
+        tool_label.setStyleSheet("""
+            QLabel {
+                color: #969696;
+                font-size: 13px;
+                font-weight: bold;
+                margin-top: 8px;
+            }
+        """)
+        self.frame_layout.addWidget(tool_label)
+        
         self.tool_selector = QComboBox()
-        self.tool_selector.addItems(self.filtered_tools)  # Use filtered_tools instead of available_tools
+        self.tool_selector.addItems(self.filtered_tools)
         self.tool_selector.setStyleSheet("""
             QComboBox {
                 padding: 12px;
@@ -129,7 +140,7 @@ class AddProcessDialog(BaseDialog):
         """)
         self.frame_layout.addWidget(self.tool_selector)
 
-        # Rest of your existing code for buttons
+        # Buttons
         button_layout = QVBoxLayout()
         
         add_button = QPushButton("Add")
@@ -176,7 +187,6 @@ class AddProcessDialog(BaseDialog):
         button_layout.addWidget(cancel_button)
         self.frame_layout.addLayout(button_layout)
 
-    # Add this new method for filtering tools
     def filter_tools(self):
         selected_category = self.category_selector.currentText()
         
@@ -190,7 +200,6 @@ class AddProcessDialog(BaseDialog):
                 class_name = "".join(tool_name.split())
                 
                 # Try to find the tool in the tool categories dictionary
-                # We need to check if the class name exists or if a similar name exists
                 matching_tool = None
                 for key in self.tool_manager.tool_categories:
                     if key.lower() in class_name.lower() or class_name.lower() in key.lower():
@@ -224,11 +233,13 @@ class ConfigDialog(BaseDialog):
 
         # Parameter inputs
         self.param_inputs = {}
+        
+        # Check if tool has get_valid_options method (enhanced approach)
         has_valid_options = hasattr(self.tool, 'get_valid_options') and callable(getattr(self.tool, 'get_valid_options', None))
         valid_options = self.tool.get_valid_options() if has_valid_options else {}
 
         for param, value in self.tool.get_parameters().items():
-            param_label = QLabel(param)
+            param_label = QLabel(param.replace('_', ' ').title())
             param_label.setStyleSheet("""
                 QLabel {
                     color: #969696;
@@ -239,29 +250,78 @@ class ConfigDialog(BaseDialog):
             """)
             self.frame_layout.addWidget(param_label)
             
+            # Enhanced parameter handling - check multiple conditions for dropdown creation
+            should_use_dropdown = False
+            dropdown_items = []
+            
+            # Check 1: Tool has get_valid_options method and this param has options
             if has_valid_options and param in valid_options:
+                should_use_dropdown = True
+                dropdown_items = valid_options[param]
+            
+            # Check 2: Special handling for FormatConversionTool (backward compatibility)
+            elif isinstance(self.tool, FormatConversionTool) and param == 'output_format':
+                should_use_dropdown = True
+                dropdown_items = list(self.tool.supported_formats.keys())
+            
+            # Check 3: Tool has supported_formats attribute and param is output_format
+            elif hasattr(self.tool, 'supported_formats') and param == 'output_format':
+                should_use_dropdown = True
+                dropdown_items = list(self.tool.supported_formats.keys())
+            
+            if should_use_dropdown:
                 input_field = QComboBox()
-                input_field.addItems(valid_options[param])
+                input_field.addItems(dropdown_items)
                 input_field.setCurrentText(str(value))
+                input_field.setStyleSheet("""
+                    QComboBox {
+                        padding: 12px;
+                        background: #3E3E42;
+                        color: #E0E0E0;
+                        border: none;
+                        border-radius: 6px;
+                        font-size: 13px;
+                    }
+                    QComboBox::drop-down {
+                        border: none;
+                        padding-right: 8px;
+                    }
+                    QComboBox::down-arrow {
+                        image: none;
+                        border: none;
+                    }
+                    QComboBox:hover {
+                        background: #4E4E52;
+                    }
+                    QComboBox:focus {
+                        border: 1px solid #007ACC;
+                    }
+                    QComboBox QAbstractItemView {
+                        background: #2D2D30;
+                        color: #E0E0E0;
+                        selection-background-color: #264F78;
+                        border: 1px solid #3E3E42;
+                    }
+                """)
             else:
                 input_field = QLineEdit(str(value))
+                input_field.setStyleSheet("""
+                    QLineEdit {
+                        padding: 12px;
+                        background: #3E3E42;
+                        color: #E0E0E0;
+                        border: none;
+                        border-radius: 6px;
+                        font-size: 13px;
+                    }
+                    QLineEdit:focus {
+                        border: 1px solid #007ACC;
+                    }
+                    QLineEdit:hover {
+                        background: #4E4E52;
+                    }
+                """)
             
-            input_field.setStyleSheet("""
-                QLineEdit, QComboBox {
-                    padding: 12px;
-                    background: #3E3E42;
-                    color: #E0E0E0;
-                    border: none;
-                    border-radius: 6px;
-                    font-size: 13px;
-                }
-                QLineEdit:focus, QComboBox:focus {
-                    border: 1px solid #007ACC;
-                }
-                QLineEdit:hover, QComboBox:hover {
-                    background: #4E4E52;
-                }
-            """)
             self.frame_layout.addWidget(input_field)
             self.param_inputs[param] = input_field
 
@@ -316,14 +376,16 @@ class ConfigDialog(BaseDialog):
         try:
             new_params = {}
             for param, input_field in self.param_inputs.items():
-                if isinstance(input_field, QLineEdit):
+                if isinstance(input_field, QComboBox):
+                    # Handle dropdown selections
+                    new_params[param] = input_field.currentText()
+                elif isinstance(input_field, QLineEdit):
+                    # Handle text input with evaluation
                     try:
                         new_value = eval(input_field.text().strip())
                         new_params[param] = new_value
                     except Exception as e:
                         raise ValueError(f"Invalid value for {param}: {str(e)}")
-                elif isinstance(input_field, QComboBox):
-                    new_params[param] = input_field.currentText()
 
             # Test parameters on a copy of the tool
             test_tool = self.tool.__class__()

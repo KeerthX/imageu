@@ -55,6 +55,7 @@ from tools.emboss import EmbossingTool
 from tools.dehaze import DehazingTool
 from tools.cartoonize import CartoonizationTool
 from tools.gradient_tool import GradientTool
+from tools.format_conversion_tool import FormatConversionTool
 
 class ToolCategory(str, Enum):
     ADJUSTMENT = "Adjustment"
@@ -69,6 +70,7 @@ class ToolCategory(str, Enum):
     TRANSFORM = "Transform"
     ARTISTIC = "Artistic"
     TEXTURE = "Texture"
+    UTILITY = "Utility"
 
 class ToolManager:
     def __init__(self):
@@ -85,6 +87,8 @@ class ToolManager:
             "SURFFeatureDetection": ToolCategory.FEATURE_DETECTION,
             "SIFTFeatureDetection": ToolCategory.FEATURE_DETECTION,
             "FASTCornerDetection": ToolCategory.FEATURE_DETECTION,
+            "ORBFeatureDetection": ToolCategory.FEATURE_DETECTION,
+            "HoughTransform": ToolCategory.FEATURE_DETECTION,
             
             # Filter Tools
             "BilateralFilter": ToolCategory.FILTER,
@@ -129,10 +133,6 @@ class ToolManager:
             "GlitchEffect": ToolCategory.EFFECT,
             "Dehazing": ToolCategory.EFFECT,
 
-            # Feature Detection Tools
-            "ORBFeatureDetection": ToolCategory.FEATURE_DETECTION,
-            "HoughTransform": ToolCategory.FEATURE_DETECTION,
-
             # Threshold Tools
             "SimpleThreshold": ToolCategory.THRESHOLD,
             "AdaptiveThreshold": ToolCategory.THRESHOLD,
@@ -151,6 +151,9 @@ class ToolManager:
             # Texture Tools 
             "LBP": ToolCategory.TEXTURE,
             "Gradient": ToolCategory.TEXTURE,
+
+            # Utility Tools
+            "FormatConversion": ToolCategory.UTILITY,
         }
 
         # Define tool class mapping
@@ -225,6 +228,9 @@ class ToolManager:
             # Texture & Feature Analysis
             "LBP": LBPTool,
             "Gradient": GradientTool,
+
+            # Utility Tools
+            "Format Conversion": FormatConversionTool,
         }
 
     def get_available_tools(self) -> List[str]:
@@ -242,25 +248,44 @@ class ToolManager:
 
     def get_tools_by_category(self, category: ToolCategory) -> List[str]:
         """Returns a list of tool names belonging to the specified category."""
-        return [
-            tool_name
-            for tool_name, tool_category in self.tool_categories.items()
-            if tool_category == category
-        ]
+        tool_names_by_category = []
+        for display_name, tool_class in self.tools.items():
+            class_name = tool_class.__name__
+            # Convert class name to match the key format in tool_categories
+            key_name = class_name.replace("Tool", "")
+            if key_name in self.tool_categories and self.tool_categories[key_name] == category:
+                tool_names_by_category.append(display_name)
+        return tool_names_by_category
 
     def get_tool_category(self, tool_name: str) -> ToolCategory:
-        """Returns the category of the specified tool."""
-        if tool_name not in self.tool_categories:
+        """Returns the category of the specified tool based on display name."""
+        if tool_name not in self.tools:
             raise ValueError(f"Unknown tool: {tool_name}")
-        return self.tool_categories[tool_name]
+        
+        # Get the class name and convert it to match the key format
+        tool_class = self.tools[tool_name]
+        class_name = tool_class.__name__
+        key_name = class_name.replace("Tool", "")
+        
+        if key_name not in self.tool_categories:
+            raise ValueError(f"Category not found for tool: {tool_name}")
+        
+        return self.tool_categories[key_name]
 
     def get_all_categories(self) -> List[ToolCategory]:
         """Returns a list of all available tool categories."""
         return list(set(self.tool_categories.values()))
 
-    # In tool_manager.py, add this method to the ToolManager class
     def get_tool_class_name(self, display_name: str) -> str:
         """Gets the class name for a tool based on its display name."""
         if display_name not in self.tools:
             raise ValueError(f"Unknown tool: {display_name}")
         return self.tools[display_name].__name__
+
+    def get_utility_tools(self) -> List[str]:
+        """Returns a list of utility tools, including format conversion."""
+        return self.get_tools_by_category(ToolCategory.UTILITY)
+
+    def is_format_conversion_available(self) -> bool:
+        """Check if format conversion tool is available."""
+        return "Format Conversion" in self.tools
